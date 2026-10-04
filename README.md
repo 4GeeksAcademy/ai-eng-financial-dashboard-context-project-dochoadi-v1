@@ -25,7 +25,9 @@ and charts in the browser.
 
 - [Phase 1: summary, services, entry points, routes and execution (Spanish)](./memory-bank/project-context.md).
 - [Phase 2: file-by-file review and findings (Spanish)](./memory-bank/phase2-analysis.md).
-- [Proposed rules for review, not approved policy (Spanish)](./.agents/rules/proposed-rules.md).
+- [Phase 3: active rules by area (Spanish)](./.agents/rules/) and [application guidance](./AGENTS.md).
+- [Agent rule-application exercise and evidence (Spanish)](./memory-bank/phase3-rule-application.md).
+- [Historical phase 2 rules draft (Spanish)](./memory-bank/archive/phase2-proposed-rules.md).
 - [Verification record and observed limitations (Spanish)](./verification.md).
 
 ## Recommended steps

@@ -25,7 +25,9 @@ y gráficos en el navegador.
 
 - [Fase 1: resumen, servicios, entry points, rutas y ejecución](./memory-bank/project-context.md).
 - [Fase 2: revisión fichero a fichero y hallazgos](./memory-bank/phase2-analysis.md).
-- [Reglas propuestas para revisión (no aprobadas)](./.agents/rules/proposed-rules.md).
+- [Fase 3: reglas activas por área](./.agents/rules/) y [guía de aplicación](./AGENTS.md).
+- [Comprobación de aplicación de reglas por un agente](./memory-bank/phase3-rule-application.md).
+- [Borrador histórico de reglas de fase 2](./memory-bank/archive/phase2-proposed-rules.md).
 - [Rastro de verificación y limitaciones observadas](./verification.md).
 
 ## Pasos recomendados

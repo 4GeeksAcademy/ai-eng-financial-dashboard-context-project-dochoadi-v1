@@ -1,5 +1,9 @@
 # Reglas propuestas - Fase 2
 
+Archivo histórico de la fase 2. Desde la fase 3, consultar las reglas activas
+en [AGENTS.md](../../AGENTS.md) y [.agents/rules](../../.agents/rules).
+No aplicar este borrador como política ni confundirlo con el estado actual.
+
 **Estado: BORRADOR PARA REVISIÓN.** Este archivo no activa nuevas políticas ni
 autoriza corregir defectos, renombrar contratos o instalar herramientas.
 Las propuestas se aceptarán/rechazarán expresamente en una fase posterior.

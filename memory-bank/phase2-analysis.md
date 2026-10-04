@@ -5,8 +5,12 @@ Estado: análisis terminado; reglas **propuestas**, no aprobadas ni aplicadas
 al comportamiento. No se introduce una refactorización ni una corrección funcional.
 
 Referencias: [contexto de fase 1](project-context.md),
-[reglas propuestas](../.agents/rules/proposed-rules.md),
+[reglas propuestas históricas](archive/phase2-proposed-rules.md),
 [rastro de verificación](../verification.md).
+
+Nota posterior (fase 3): el borrador se archivó sin convertir el análisis
+histórico en una declaración de defectos resueltos. Las reglas activas
+están enlazadas en [AGENTS.md](../AGENTS.md).
 
 ## Método y límites
 

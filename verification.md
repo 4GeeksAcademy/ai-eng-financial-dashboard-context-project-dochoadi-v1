@@ -68,7 +68,7 @@ funcionales y las comprobaciones pendientes quedan explícitos, no resueltos.
 
 - Fecha: 2026-10-04. Baseline: `ef53539`; 43 archivos versionados revisados.
 - Entregables: [análisis e inventario individual](memory-bank/phase2-analysis.md),
-  [19 reglas draft con hechos y verificación](.agents/rules/proposed-rules.md).
+  [19 reglas draft con hechos y verificación (archivo histórico)](memory-bank/archive/phase2-proposed-rules.md).
 - Commit dedicado: `docs: record phase 2 findings and proposed rules`.
 - Alcance: 31 hallazgos categorizados, no 31 bugs; convenciones y riesgos
   potenciales diferenciados de defectos actuales. Sin cambios de aplicación,
@@ -94,3 +94,38 @@ Usar `COVERAGE_FILE=backend/.coverage` desde raíz para no crear un artefacto
 sin seguimiento: el .coverage raíz creado al medir se retiró al terminar.
 Sin instalaciones nuevas. Los patches de prueba se restauran al salir de
 cada contexto; no persisten ni modifican código fuente.
+
+## Fase 3 - Reglas activas y prueba de aplicación
+
+- Fecha: 2026-10-04. Baseline: `b5b0d39`; árbol inicialmente limpio.
+- Fuente: [phase2-analysis.md](memory-bank/phase2-analysis.md), no findings.md.
+- Cinco reglas activas en [.agents/rules](.agents/rules), indexadas en
+  [AGENTS.md](AGENTS.md); cuatro secciones requeridas y ejemplos reales
+  por archivo, con trazabilidad de las 19 propuestas.
+- [Borrador de fase 2](memory-bank/archive/phase2-proposed-rules.md) archivado
+  fuera del directorio activo; enlaces históricos conservados.
+- [Prueba y matriz de cumplimiento](memory-bank/phase3-rule-application.md).
+- Commit dedicado: `docs: activate phase 3 rules and verify agent application`.
+
+Petición al agente: **“Aplica las reglas recién creadas en `.agents/rules`”**,
+cambiar título de pestaña a `Financial Metrics Dashboard` y probar entradas
+preservadas. Cambió una línea de HTML y añadió un test Vitest, sin modificar
+fórmulas, contratos ni dependencias. El agente padre contrastó diff, prueba
+y HTML compilado; no se tomó únicamente el autoinforme como evidencia.
+
+| Estado | Comprobación | Resultado |
+|---|---|---|
+| ✅ | [Validador estructural](verification/phase3_rules_check.py) | Cinco documentos activos con Nombre/Alcance/Justificación/Guía, ejemplos y hechos; R01-R19 cubiertas, índice AGENTS y enlaces locales válidos. |
+| ✅ | `npm --prefix frontend test -- src/index-html.test.ts src/lib/financial-utils.test.ts` | 6 passed, 2 archivos; título exacto y único, lang, favicon, viewport, root y script preservados. |
+| ✅ | `backend/.venv/bin/python -m pytest backend/tests/test_routes.py -q` | 15 passed; /health existente responde 200 y JSON exacto. No ruta duplicada. |
+| ✅ | Build y lint frontend | Pasan; HTML compilado tiene nuevo título y entradas de aplicación preservadas. JS conserva 584.26 kB / gzip 175.20 kB y aviso >500 kB. |
+| ✅ | Cumplimiento observado del agente | Lectura de cinco reglas; diff acotado HTML+test; runner existente, sin installs/config/refactor/commit delegado. |
+| ✅ | Documentación relacionada | README ES/EN y AGENTS enlazan reglas/evidencia; comentario .env.example aclara Docker/origen navegador sin cambiar su valor. |
+| ✅ | Preservación y enlaces | 260 enlaces locales resuelven; título es reemplazo exacto de una línea, cuerpo del borrador archivado idéntico y sin cambios ajenos en fuentes del baseline. `git diff --check` correcto. |
+| ❓ | Reglas fuera de tarea de texto | Dinero, fechas, concurrencia, requests y nuevas rutas no ejercitadas como implementación; no afirmar adopción probada para esos comportamientos. |
+| ❓ | Visual, accesibilidad, proxy y producción | No comprobados ni corregidos en esta fase; defectos funcionales de fase 2 siguen pendientes. |
+
+No nuevas instalaciones, servidores ni outputs temporales sin seguimiento.
+El validador estructural no evalúa semántica de prosa/anchors ni el test de
+HTML equivale a una prueba de navegador. Commit se crea tras validar el diff
+y la persistencia de los entregables; sin push.
