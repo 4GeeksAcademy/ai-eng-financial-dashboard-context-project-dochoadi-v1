@@ -17,6 +17,15 @@ _These instructions are [available in English](./README.md)._
 
 _Dashboard de métricas financieras con frontend en React + TypeScript y backend en FastAPI._
 
+## Contexto verificado del proyecto
+
+La API genera datos sintéticos; no hay una base de datos ni una integración
+financiera real. La pantalla actual consume `/api/metrics` y calcula los KPIs
+y gráficos en el navegador.
+
+- [Fase 1: resumen, servicios, entry points, rutas y ejecución](./memory-bank/project-context.md).
+- [Rastro de verificación y limitaciones observadas](./verification.md).
+
 ## Pasos recomendados
 
 1. Haz un fork de este repositorio a tu cuenta.
@@ -42,8 +51,14 @@ _Dashboard de métricas financieras con frontend en React + TypeScript y backend
 docker compose up --build
 ```
 
-El frontend usa por defecto el proxy de Vite para `/api`, así que no necesitas variables de entorno extra ni en desarrollo local ni en Codespaces.
-Si necesitas apuntar a otro backend, copia `frontend/.env.example` como `.env` y define `VITE_API_BASE_URL`.
+Con Docker Compose, el frontend está configurado para usar el proxy de Vite
+para `/api` hacia `http://backend:8000`, sin variables de entorno adicionales.
+Esto requiere conectividad entre ambos contenedores; la verificación de fase 1
+detectó un timeout en este entorno, documentado en el rastro anterior.
+Si ejecutas los servicios sin Docker o necesitas otro backend, copia
+[`frontend/.env.example`](./frontend/.env.example) a `frontend/.env` y define
+`VITE_API_BASE_URL` con un origen accesible desde el navegador, sin `/api` ni
+barra final. Reinicia Vite tras cambiar la variable.
 
 - Frontend: http://localhost:5173
 - Backend: http://localhost:8000
