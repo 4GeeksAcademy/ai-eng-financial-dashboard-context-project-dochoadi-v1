@@ -24,6 +24,8 @@ financiera real. La pantalla actual consume `/api/metrics` y calcula los KPIs
 y gráficos en el navegador.
 
 - [Fase 1: resumen, servicios, entry points, rutas y ejecución](./memory-bank/project-context.md).
+- [Fase 2: revisión fichero a fichero y hallazgos](./memory-bank/phase2-analysis.md).
+- [Reglas propuestas para revisión (no aprobadas)](./.agents/rules/proposed-rules.md).
 - [Rastro de verificación y limitaciones observadas](./verification.md).
 
 ## Pasos recomendados

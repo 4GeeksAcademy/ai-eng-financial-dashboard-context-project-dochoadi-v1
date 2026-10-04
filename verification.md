@@ -63,3 +63,34 @@ de rutas y filtros, usar el inventario del [contexto](memory-bank/project-contex
 y Swagger. Corregidas las ambigüedades documentales de período/dataset,
 consumo de endpoints y ubicación de la variable de entorno; los defectos
 funcionales y las comprobaciones pendientes quedan explícitos, no resueltos.
+
+## Fase 2 - Hallazgos concretos y reglas propuestas
+
+- Fecha: 2026-10-04. Baseline: `ef53539`; 43 archivos versionados revisados.
+- Entregables: [análisis e inventario individual](memory-bank/phase2-analysis.md),
+  [19 reglas draft con hechos y verificación](.agents/rules/proposed-rules.md).
+- Commit dedicado: `docs: record phase 2 findings and proposed rules`.
+- Alcance: 31 hallazgos categorizados, no 31 bugs; convenciones y riesgos
+  potenciales diferenciados de defectos actuales. Sin cambios de aplicación,
+  dependencias ni comportamiento. Probes nuevos reproducen el baseline:
+  su éxito no implica que los defectos estén resueltos.
+
+| Estado | Comprobación | Resultado |
+|---|---|---|
+| ✅ | Inventario baseline | 43/43: texto manual completo; lockfile 306 entradas con integrity y manifest alineado; SVG parseado y PNG 343×361/44 919 bytes. |
+| ✅ | [Probe backend](verification/phase2_backend_probe.py) | B01-B12: queries ignoradas, rango invertido, 500 date.min, RNG compartido, reloj fijo, dominio/precondiciones y sensibilidad de tests. |
+| ✅ | [Probe frontend](verification/phase2_frontend_probe.mjs) | F01-F03 en UTC/Los Ángeles; F04-F07 con componentes reales en SSR y lectura de App. Sin navegador. |
+| ❌ | Fecha civil | `2026-01-01` agrupa Jan 2026 en UTC y Dec 2025 en Los Ángeles. |
+| ❌ | Estado vacío del margen | Income=outcome=100 produce “No data available to display”. |
+| ❌ | Sensibilidad de pruebas heredadas | Summary acepta net=999/period=wrong; alerts acepta detector siempre vacío; comparison acepta cálculo siempre cero. |
+| ✅ | Suite heredada / cobertura | 15 backend + 5 frontend pasan; frontend también pasa en Los Ángeles pese al defecto temporal. Backend 97% líneas; frontend 100% líneas solo de utils / 87.5% branches. |
+| ✅ | Build/lint/sintaxis/Compose | Build y lint pasan; probe JS y Python válidos; Compose válido. JS 584.26 kB, gzip 175.20 kB: aviso >500 kB, no medición de latencia. |
+| ✅ | Trazabilidad documental | Inventario coincide exactamente con los 43 archivos del baseline; 31 IDs de hallazgo y 19 IDs de regla únicos, todos con evidencia; 192 enlaces locales resuelven. |
+| ❓ | Red proxy, navegador, responsive/accesibilidad y seguridad | No reevaluados/aprobados en esta fase; conservar límites de fase 1. |
+
+Repetición dirigida y significado de cada etiqueta:
+[comandos del análisis](memory-bank/phase2-analysis.md#reproducción-y-resultados).
+Usar `COVERAGE_FILE=backend/.coverage` desde raíz para no crear un artefacto
+sin seguimiento: el .coverage raíz creado al medir se retiró al terminar.
+Sin instalaciones nuevas. Los patches de prueba se restauran al salir de
+cada contexto; no persisten ni modifican código fuente.

@@ -24,6 +24,8 @@ integration. The current screen consumes `/api/metrics` and computes KPIs
 and charts in the browser.
 
 - [Phase 1: summary, services, entry points, routes and execution (Spanish)](./memory-bank/project-context.md).
+- [Phase 2: file-by-file review and findings (Spanish)](./memory-bank/phase2-analysis.md).
+- [Proposed rules for review, not approved policy (Spanish)](./.agents/rules/proposed-rules.md).
 - [Verification record and observed limitations (Spanish)](./verification.md).
 
 ## Recommended steps
