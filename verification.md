@@ -129,3 +129,31 @@ No nuevas instalaciones, servidores ni outputs temporales sin seguimiento.
 El validador estructural no evalúa semántica de prosa/anchors ni el test de
 HTML equivale a una prueba de navegador. Commit se crea tras validar el diff
 y la persistencia de los entregables; sin push.
+
+## Fase 4 - Memory Bank basado en evidencia
+
+- Fecha: 2026-10-04. Baseline: `03a7a84`; árbol inicialmente limpio.
+- Cuatro entregables actuales: [productContext](memory-bank/productContext.md),
+  [techContext](memory-bank/techContext.md),
+  [systemPatterns](memory-bank/systemPatterns.md), [progress](memory-bank/progress.md).
+- Relectura de App, cálculos, router/modelos, manifiestos, Docker/Compose,
+  Vite/env y evidencia de fases anteriores. Afirmaciones enlazadas a fuentes;
+  stack declarado separado de versiones resueltas y runtime de verificación.
+- Estado actual diferencia título HTML corregido de período 2024 pendiente,
+  API directa verificada de proxy fallido y deuda de prioridades propuestas.
+- AGENTS y README ES/EN indexan la memoria actual; snapshots históricos se
+  conservan, sin nuevas reglas ni duplicar los análisis.
+- Validación documental: validador existente de reglas/enlaces,
+  estructura de cuatro documentos, fuente de rutas/dependencias y diff
+  exclusivamente Markdown. No tests/build ni servidores nuevos: cambio
+  documental sin comportamiento; se citan resultados anteriores con fecha.
+- Commit dedicado: `docs: build phase 4 evidence-backed memory bank`.
+- Resultado de comprobaciones: `verification/phase3_rules_check.py` pasa
+  (cinco reglas intactas y 370 enlaces locales válidos); comprobación
+  dirigida confirma cuatro documentos indexados, fechas/baseline/fuentes,
+  nueve rutas por AST y versiones declaradas/resueltas concordantes.
+  `git diff --check` correcto; solo ocho archivos Markdown nuevos/modificados.
+
+✅ Producto, stack/sin DB, arquitectura/conexión y progreso/deuda documentados
+con fuentes. ❓ Proxy, navegador, dominio financiero y producción siguen
+pendientes; esta fase no los corrige ni declara aprobación.

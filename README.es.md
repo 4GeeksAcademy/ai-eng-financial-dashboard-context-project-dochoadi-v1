@@ -27,6 +27,9 @@ y gráficos en el navegador.
 - [Fase 2: revisión fichero a fichero y hallazgos](./memory-bank/phase2-analysis.md).
 - [Fase 3: reglas activas por área](./.agents/rules/) y [guía de aplicación](./AGENTS.md).
 - [Comprobación de aplicación de reglas por un agente](./memory-bank/phase3-rule-application.md).
+- Fase 4: Memory Bank actual — [producto](./memory-bank/productContext.md),
+  [tecnología](./memory-bank/techContext.md), [arquitectura](./memory-bank/systemPatterns.md)
+  y [estado/deuda/prioridades](./memory-bank/progress.md).
 - [Borrador histórico de reglas de fase 2](./memory-bank/archive/phase2-proposed-rules.md).
 - [Rastro de verificación y limitaciones observadas](./verification.md).
 

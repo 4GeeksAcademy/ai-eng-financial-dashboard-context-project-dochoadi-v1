@@ -32,3 +32,15 @@ Local skills are currently absent; do not invent or install them.
 
 For the scoped implementation exercise and its evidence, see
 [Phase 3 rule application](./memory-bank/phase3-rule-application.md).
+
+## Current Memory Bank (phase 4)
+
+Read the current context before changes; previous phase analyses are historical:
+
+- [Product context](./memory-bank/productContext.md)
+- [Technology context](./memory-bank/techContext.md)
+- [System patterns](./memory-bank/systemPatterns.md)
+- [Progress, debt and pending validation](./memory-bank/progress.md)
+
+Keep these documents aligned with code and record the date and scope of
+verification. Do not present historical tests as newly executed checks.
