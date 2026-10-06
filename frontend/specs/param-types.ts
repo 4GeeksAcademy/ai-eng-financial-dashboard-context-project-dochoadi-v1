@@ -23,6 +23,8 @@ export interface AlertsParams extends DateRangeFilter {
    * @see GET /api/metrics/alerts
    */
   threshold?: number
+  // `group_by` (always `month`) and `business_type` (never sent) exist in the API
+  // but are intentionally NOT part of this type: the UI does not expose them (D1).
 }
 
 export interface TopCategoriesParams extends DateRangeFilter {
@@ -45,15 +47,9 @@ export interface TopCategoriesParams extends DateRangeFilter {
   business_type?: BusinessType
 }
 
-export interface MetricsParams extends DateRangeFilter {
-  /**
-   * Inclusive start date. Optional; when provided, use `YYYY-MM-DD`.
-   * @see GET /api/metrics
-   */
-  start_date?: string
-  /**
-   * Inclusive end date. Optional; when provided, use `YYYY-MM-DD`.
-   * @see GET /api/metrics
-   */
-  end_date?: string
-}
+/**
+ * Params of GET /api/metrics (verified in backend/app/routes.py on 2026-10-06:
+ * `start_date`, `end_date`, `category`, `operation_type`; returns FinancialMovement[]).
+ * The dashboard only sends the date range.
+ */
+export type MetricsParams = DateRangeFilter

@@ -45,7 +45,8 @@ export interface AlertEntry {
    */
   outcome_total: number
   /**
-   * Historical baseline average used by the API, represented as a number with no declared range.
+   * Average of exactly the 3 preceding periods (target contract, decision D1 in
+   * verification.md). TODAY the API returns an expanding historical average instead.
    * @see GET /api/metrics/alerts
    */
   baseline_average: number
@@ -81,7 +82,21 @@ export interface CategoryEntry {
    * @see GET /api/metrics/categories/top
    */
   total_amount: number
-  // TODO: Add percentage_of_group after the endpoint exposes and verifies it.
+  /**
+   * TARGET CONTRACT (decision D2, not yet implemented/verified in the API; see
+   * verification.md ❌ row). Share of this category over the full group total, in
+   * percent, scale 0–100, rounded to 2 decimals. The group is
+   * (business_type, operation_type, date range), NOT limited by `limit`.
+   * @see GET /api/metrics/categories/top
+   */
+  percentage_of_group: number
+  /**
+   * TARGET CONTRACT (decision D2). Total of ALL movements of the group (all
+   * categories, ignoring `limit`), repeated in every entry. The response stays a
+   * plain array (backward compatible). An empty array means the group total is 0.
+   * @see GET /api/metrics/categories/top
+   */
+  group_total: number
 }
 
 export interface TopCategoriesResponse extends ReadonlyArray<CategoryEntry> {
@@ -91,3 +106,12 @@ export interface TopCategoriesResponse extends ReadonlyArray<CategoryEntry> {
    */
   readonly [index: number]: CategoryEntry
 }
+
+/**
+ * UI-only wrapper for one asynchronous request (not an API type). Lets a component
+ * tell "loading", "failed" and "loaded (possibly empty)" apart per request.
+ */
+export type RequestState<T> =
+  | { status: 'loading' }
+  | { status: 'error'; message: string }
+  | { status: 'success'; data: T }
