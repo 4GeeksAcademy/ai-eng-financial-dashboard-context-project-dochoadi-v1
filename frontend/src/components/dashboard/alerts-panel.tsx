@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { type AnomalyAlert } from '@/lib/financial-types'
-import { formatCurrency } from '@/lib/financial-utils'
 import { AlertTriangle, AlertCircle, Info, TrendingUp, TrendingDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -14,15 +13,6 @@ const severityConfig: Record<string, { icon: typeof AlertTriangle; className: st
   P1: { icon: AlertTriangle, className: 'text-amber-500 bg-amber-500/10', label: 'High' },
   P2: { icon: Info, className: 'text-blue-500 bg-blue-500/10', label: 'Medium' },
   P3: { icon: Info, className: 'text-muted-foreground bg-muted/50', label: 'Low' },
-}
-
-const typeIcons: Record<string, typeof TrendingUp> = {
-  income_spike: TrendingUp,
-  outcome_spike: TrendingDown,
-  margin_drop: TrendingDown,
-  margin_jump: TrendingUp,
-  category_change: AlertTriangle,
-  zero_data: AlertCircle,
 }
 
 export function AlertsPanel({ alerts, loading }: AlertsPanelProps) {
@@ -70,7 +60,6 @@ export function AlertsPanel({ alerts, loading }: AlertsPanelProps) {
             {alerts.map((alert, idx) => {
               const sev = severityConfig[alert.severity] ?? severityConfig.P3
               const SevIcon = sev.icon
-              const TypeIcon = typeIcons[alert.type] ?? AlertTriangle
               return (
                 <div
                   key={`${alert.month}-${alert.type}-${idx}`}

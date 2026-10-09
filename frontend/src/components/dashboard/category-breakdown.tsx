@@ -16,7 +16,7 @@ const categoryColors: Record<string, string> = {
   others: '#6b7280',
 }
 
-function BreakdownList({ items, total, accent }: { items: CategoryBreakdown[]; total: number; accent: string }) {
+function BreakdownList({ items, total: _total, accent }: { items: CategoryBreakdown[]; total: number; accent: string }) {
   if (items.length === 0) return <p className="text-sm text-muted-foreground">No data</p>
   return (
     <div className="space-y-2">

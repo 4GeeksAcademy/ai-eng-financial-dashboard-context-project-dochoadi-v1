@@ -129,5 +129,22 @@ VITE_* expuestas al frontend. Conexión detallada en
 - Host usado en verificaciones previas: Node 24.21.0/Python 3.14.2;
   no idéntico al Python 3.13 de Docker.
 
+## Skills Registry
+
+El proyecto tiene 4 skills instaladas/disponibles. Las primeras tres se instalaron
+vía `npx skills add` y están registradas en [`skills-lock.json`](../skills-lock.json);
+la cuarta se creó manualmente.
+
+| Skill | Origen | Ruta local | Propósito | ¿Cuándo usarla? |
+|-------|--------|------------|-----------|-----------------|
+| **accessibility** | `addyosmani/web-quality-skills` → `skills/accessibility/SKILL.md` | `.agents/skills/accessibility/` (SKILL.md + 2 referencias) | Auditar accesibilidad web WCAG 2.2 (POUR): alt text, contraste, teclado, roles ARIA, focus. Workflow: Lighthouse audit → accessibility-tree snapshot → keyboard testing. | Al crear/modificar componentes UI, al auditar accesibilidad, al verificar cumplimiento AA/AAA. Skill documental + patrones de código. |
+| **vercel-react-best-practices** | `vercel-labs/agent-skills` → `skills/react-best-practices/SKILL.md` | `.agents/skills/vercel-react-best-practices/` (SKILL.md + 70 rules/ + AGENTS.md) | 70 reglas de rendimiento React/Next.js de Vercel Engineering. 8 categorías priorizadas: waterfalls, bundle, server, cliente, re-renders, rendering, JS, avanzados. | Al escribir nuevos componentes React, al refactorizar por rendimiento, al optimizar bundle. No aplica a backend ni testing. |
+| **webapp-testing** | `anthropics/skills` → `skills/webapp-testing/SKILL.md` | `.agents/skills/webapp-testing/` (SKILL.md + examples/ + scripts/) | Toolkit E2E con Playwright. Patrón "reconnaissance-then-action": inspeccionar DOM → identificar selectores → assertions. Helper `scripts/with_server.py` para ciclo de vida de servidores. | Al crear tests E2E, al verificar integración FE/BE real, al depurar UI desde el navegador. No para tests unitarios. |
+| **formato-financiero** | Creación manual (no `npx skills add`) | `.agents/skills/formato-financiero/` (SKILL.md + scripts/ + examples/ + references/) | 10 reglas de análisis financiero (R1–R10): rentabilidad, ingresos, costes, margen, cash flow, anomalías, segmentos, concentración, crecimiento vs rentabilidad, estrategia. Scripts: `financial_review.py`, `quick_pulse.py`. | Al auditar un dashboard financiero, al detectar anomalías/riesgos, al evaluar salud financiera, al generar informes ejecutivos. |
+
+Todas las skills son de solo lectura: analizan la aplicación pero no modifican
+su código fuente. Más detalles en [`Skillelegida.md`](../Skillelegida.md) y
+[`skilltesting.md`](../skilltesting.md).
+
 Resultados y advertencias fechados, no una ejecución nueva de fase 4:
 [progress.md](progress.md), [verification.md](../verification.md).

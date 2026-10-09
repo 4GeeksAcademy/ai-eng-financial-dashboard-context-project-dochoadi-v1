@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { type MonthlyDataPoint } from '@/lib/financial-types'
-import { formatCurrency } from '@/lib/financial-utils'
 import { IncomeOutcomeTooltip } from '@/components/dashboard/chart-tooltip'
 import {
   BarChart,

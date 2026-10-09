@@ -95,7 +95,7 @@ export function ProfitPercentChart({ data, loading }: ProfitPercentChartProps) {
                   stroke="transparent"
                   strokeWidth={0}
                   dot={renderDot}
-                  activeDot={renderDot}
+                  activeDot={renderDot as any}
                   legendType="none"
                 />
               )}

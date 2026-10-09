@@ -66,6 +66,33 @@ dinámicas. El gráfico de margen confunde valores válidos cero con ausencia
 de datos; ambas limitaciones están reproducidas en
 [análisis de fase 2](phase2-analysis.md), H07/H13.
 
+## Funcionalidad ampliada (post-auditoría formato-financiero)
+
+En octubre 2026 se aplicó la skill `formato-financiero` (R1–R10) al dashboard,
+añadiendo 6 nuevos componentes y extendiendo los existentes. Estado post-corrección:
+
+| Elemento nuevo | Regla origen | Comportamiento |
+|----------------|-------------|----------------|
+| **Cost-to-Income ratio** | R3 | Quinto KPI en `kpi-row.tsx`, con color dinámico según salud (<70% verde, 70-85% amarillo, >85% rojo) |
+| **HealthStatus badge** | R1 | Indicador visual en KPI cards: "Healthy", "Warning", "Critical" con colores |
+| **TrendBadge** | R1, R2, R4, R9 | Badge con TrendingUp/Down/Minus según dirección de cada KPI |
+| **CategoryBreakdown** | R3, R8 | Barras de progreso por categoría income/outcome con badge "HIGH" si >70% o >60% |
+| **SegmentComparison** | R7 | Tarjetas B2B/B2C con income/outcome/profit/margin y badge de concentración |
+| **AlertsPanel** | R6, R10 | Lista priorizada de alertas P0–P3 con iconos y colores |
+| **MonthlyProfitChart** | R5 | BarChart profit mensual con ReferenceLine en 0 (breakeven) |
+| **GrowthComparison** | R9 | Comparativa tasas crecimiento income/outcome/profit con TrendBadge |
+| **IncomeOutcomeChart** (ampliado) | R3, R8 | Indicador volatilidad (CV), advertencia concentración >40%, ReferenceLine promedio outcome |
+| **ProfitPercentChart** (ampliado) | R4 | Custom dots rojos/verdes para cambios de margen ≥10pp |
+
+**KPIs actuales (5)**: Total Income, Total Outcome, Profit, Profit Margin, Cost-to-Income Ratio.
+**Estados adicionales en App.tsx (6)**: categoryBreakdown, segmentMetrics, trendInfo, anomalies,
+growthComparison, alerts — cada uno con su propio fetch, loading y error.
+**Secciones del dashboard (7)**: KPI row, Income vs Outcome chart, Profit Margin chart,
+Monthly Profit chart, Category Breakdown, Segment Comparison, Alerts Panel + Growth Comparison.
+
+**Incumplimientos no corregidos (3/33)**: Filtro de fechas (requiere API), tabla alertas umbral
+(requiere API), concentración >40% mes (no aplica en datos mock). Ver `progress.md`.
+
 ## Decisiones abiertas
 
 Confirmar moneda y precisión contable, tratamiento del margen sin ingresos

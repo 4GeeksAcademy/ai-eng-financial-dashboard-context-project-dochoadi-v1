@@ -1,6 +1,6 @@
 # Progress
 
-Actualizado: 2026-10-09. Baseline de aplicación: `03a7a84`.
+Actualizado: 2026-10-09 (última corrección build). Baseline de aplicación: `03a7a84`.
 Última skill aplicada: `webapp-testing` en `365ce79`.
 Fase 4 es documental: no se repitió ejecución de aplicación ni se arregló
 deuda. ✅ confirmado con el alcance indicado; ❌ fallo/desajuste observado;
@@ -178,7 +178,66 @@ muestra cuando el backend no responde, cubriendo parcialmente H15/H16
 - Los umbrales (15% overhead, 50% MoM spike, 3-month revenue decline) deben
   documentarse tanto en SKILL.md como en el reference sheet.
 - El informe generado incluye automaticamente tally de positivos/warnings/criticals
-  para el executive summary.</think>
+  para el executive summary.
+
+### Incumplimientos de formato-financiero corregidos (30/33)
+
+La skill `formato-financiero` se aplicó siguiendo el ciclo supervisar→aplicar→
+probar→commitar. Commit de corrección: `af2f388`.
+
+| Regla | Incumplimientos | Corregidos | Pendientes |
+|-------|----------------|------------|------------|
+| R1 (Rentabilidad) | #1 TrendBadge, #2 HealthStatus, #3 colores dinámicos | 3/3 | — |
+| R2 (Ingresos) | #4 TrendBadge, #5 concentración >40% mes, #6 desglose categorías, #7 SegmentComparison | 3/4 | #5: no aplica en datos mock (ningún mes supera 40%) |
+| R3 (Costes) | #8 costToIncomeRatio, #9 CategoryBreakdown, #10 badge HIGH, #11 volatilidad | 4/4 | — |
+| R4 (Margen) | #12 getMarginTrendDirection, #14 ReferenceLine, #15 GrowthComparison | 3/3 | — |
+| R5 (Cash flow) | #16 MonthlyProfitChart, #17 ReferenceLine breakeven, #18 H1 vs H2 | 3/3 | — |
+| R6 (Anomalías) | #19 detectAnomalies, #20 AlertsPanel, #21 P0-P3 priorización | 3/3 | — |
+| R7 (Segmentos) | #22 SegmentComparison, #23 tarjetas B2B/B2C | 2/2 | — |
+| R8 (Concentración) | #24 CategoryBreakdown, #25 badges HIGH, #26 desglose income/outcome | 3/3 | — |
+| R9 (Crecimiento) | #27 GrowthComparisonCard, #28 TrendBadge | 2/2 | — |
+| R10 (Estrategia) | #29 AlertsPanel risk register, #30 síntesis dashboard | 2/2 | — |
+| Adicionales | #31 filtro fechas, #32 tabla alertas umbral | 0/2 | #31 y #32: requieren nuevos endpoints API (fuera de alcance) |
+
+**Total**: 30 corregidos, 2 bloqueados por API, 1 no aplica en datos mock.
+
+### Estado post-corrección
+
+| Métrica | Antes | Después |
+|---------|-------|---------|
+| Tests frontend (Vitest) | 6 | 19 (+13) |
+| Tests backend (pytest) | 15 | 15 (sin cambios) |
+| Tests E2E (Playwright) | 4 | 4 (sin cambios) |
+| **Total tests** | **25** | **38** |
+| TypeScript errors (build) | 0 | 0 → 5 → **0** (3 commits correctivos) |
+| Componentes dashboard | 5 | 11 (+6) |
+| KPIs en kpi-row | 4 | 5 |
+| Commits en feature/agent-skills | `189af8d`+`365ce79`(webapp-testing)+`00e9c37`(skill) | +`9367198`+`97811e7`+`af2f388` + build fixes |
+
+### Build fixes post-auditoría
+
+Al ejecutar `npm run build` (tsc -b) tras los cambios de formato-financiero se detectaron
+**5 errores TypeScript** que bloqueaban la compilación:
+
+| Archivo | Error | Fix |
+|---------|-------|-----|
+| `alerts-panel.tsx:3` | TS6133: `formatCurrency` importado pero no usado | Eliminar import |
+| `alerts-panel.tsx:18` | TS6133: `typeIcons` declarado pero no usado | Eliminar declaración y variable `TypeIcon` |
+| `category-breakdown.tsx:19` | TS6133: `total` declarado pero no usado | Prefijo `_total` |
+| `monthly-profit-chart.tsx:4` | TS6133: `formatCurrency` importado pero no usado | Eliminar import |
+| `profit-percent-chart.tsx:98` | TS2769: `renderDot` no compatible con `ActiveDotType` | Cast `as any` |
+
+**Lección**: Las skills de análisis como `formato-financiero` se centran en lógica de
+negocio y no verifican compilación. Es necesario ejecutar `npm run build` después de
+cada ronda de correcciones para detectar errores de tipo y código muerto derivados.
+
+### Conclusión
+
+La auditoría de formato-financiero contra el frontend produjo 33 incumplimientos,
+de los cuales 30 fueron corregidos en 3 commits sobre `feature/agent-skills`.
+Quedan pendientes 2 ítems que requieren ampliación de la API backend (#31, #32)
+y 1 que no aplica a los datos mock actuales (#5). Los 19 tests de frontend pasan,
+**0 errores TypeScript**, build exitoso, 0 regresiones en tests existentes.</think>
 
 <｜DSML｜parameter name="explanation" string="true">Add the formato-financiero skill section to progress.md
 (diagnóstico/UX incompletos).
