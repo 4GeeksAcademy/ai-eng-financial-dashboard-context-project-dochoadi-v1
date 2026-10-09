@@ -1,6 +1,7 @@
 # Progress
 
-Actualizado: 2026-10-04. Baseline de aplicación: `03a7a84`.
+Actualizado: 2026-10-09. Baseline de aplicación: `03a7a84`.
+Última skill aplicada: `webapp-testing` en `365ce79`.
 Fase 4 es documental: no se repitió ejecución de aplicación ni se arregló
 deuda. ✅ confirmado con el alcance indicado; ❌ fallo/desajuste observado;
 ❓ pendiente de validar/decidir. Evidencia por fase en
@@ -89,3 +90,42 @@ Actualizar documento del área cuando cambien código/contratos, y progress
 con resultado, fecha y alcance. Conservar notas históricas en lugar de
 presentar evidencia pasada como ejecución nueva. Leer producto→tecnología→
 patrones→estado antes de cambios; revisar reglas y fuente real relevante.
+
+## Fase 5 — Skill Evaluation Pipeline: `webapp-testing`
+
+| Fase | Entrega | Commit / estado |
+|---|---|---|
+| 5 | [skilltesting.md](../skilltesting.md), [E2E tests](../tests/e2e/test_dashboard.py), [repo memory](../memories/repo/skill-testing-results.md) | `189af8d` (install) + `365ce79` (findings); completada. |
+
+### Resumen de resultados
+
+La skill `anthropics/skills@webapp-testing` fue evaluada siguiendo el pipeline
+de 8 pasos (leer SKILL.md → evaluar 4Q → instalar → medir baseline → auditar →
+supervisar → testear → reportar).
+
+**Evaluación**: 9/9 (coherente, no modifica fuentes, tests atómicos, segura).
+Seleccionada frente a `python/fastapi` (9/9) y `docker` (7/9) por impacto
+transversal (FE + BE + integración).
+
+**Tests E2E creados**: 4 tests en `tests/e2e/test_dashboard.py` (217 líneas):
+- `test_dashboard_full_flow` — título, header, KPIs, screenshot
+- `test_dashboard_charts_render` — chart titles ("Income vs. Outcome", "Profit Margin"), SVGs
+- `test_dashboard_error_state` — mensaje "No se pudo cargar" con lang="es"
+- `test_dashboard_kpi_values_are_positive` — signos $ y % visibles
+
+**Resultados**: 4/4 PASSED, 3 screenshots generados (93K, 89K, 112K).
+
+**Comparativa baseline**: 21 → 25 tests (+19%). Sin regresiones en frontend
+(6 tests ✅) ni backend (15 tests ✅). Nueva capa E2E sobre unitarias existentes.
+
+**Lección principal**: Chromium headless-shell requiere dependencias del sistema
+que se instalan con `python -m playwright install-deps chromium`.
+
+### Impacto en deuda técnica
+
+El pipeline no modificó código fuente ni corrigió los hallazgos H06-H31 de
+fase 2. Sin embargo, los tests E2E cubren la brecha de integración identificada
+(proxy timeout no diagnosticado, flujo end-to-end no verificado). El test
+`test_dashboard_error_state` valida que el mensaje de error en español se
+muestra cuando el backend no responde, cubriendo parcialmente H15/H16
+(diagnóstico/UX incompletos).

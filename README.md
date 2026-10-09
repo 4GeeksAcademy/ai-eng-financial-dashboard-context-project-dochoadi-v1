@@ -27,6 +27,8 @@ and charts in the browser.
 - [Phase 2: file-by-file review and findings (Spanish)](./memory-bank/phase2-analysis.md).
 - [Phase 3: active rules by area (Spanish)](./.agents/rules/) and [application guidance](./AGENTS.md).
 - [Agent rule-application exercise and evidence (Spanish)](./memory-bank/phase3-rule-application.md).
+- Phase 5: skill `webapp-testing` evaluation & E2E testing pipeline — [skilltesting.md](./skilltesting.md).
+- [E2E tests](./tests/e2e/test_dashboard.py) (Playwright + Chromium, 4 tests, 3 screenshots).
 - Phase 4: current Memory Bank (Spanish) — [product](./memory-bank/productContext.md),
   [technology](./memory-bank/techContext.md), [architecture](./memory-bank/systemPatterns.md)
   and [progress/debt/priorities](./memory-bank/progress.md).

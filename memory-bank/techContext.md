@@ -96,6 +96,16 @@ VITE_* expuestas al frontend. Conexión detallada en
   [conftest](../backend/tests/conftest.py) incorpora backend al sys.path.
 - Coverage desde raíz: `COVERAGE_FILE=backend/.coverage` para evitar
   .coverage raíz no ignorado por [.gitignore](../.gitignore).
+- **E2E**: Playwright (sync_api) + Chromium headless-shell. Los tests se
+  ejecutan desde la raíz del proyecto:
+  ```bash
+  python tests/e2e/test_dashboard.py
+  ```
+  Las dependencias del sistema se instalan con:
+  ```bash
+  python -m playwright install-deps chromium
+  ```
+  4 tests, 3 screenshots automáticos. Ver [`skilltesting.md`](../skilltesting.md).
 - [tsconfig app](../frontend/tsconfig.app.json) y
   [node](../frontend/tsconfig.node.json) no habilitan strict; sí noUnused,
   modo bundler y noEmit. Alias @ está coordinado en TS/Vite/components.
