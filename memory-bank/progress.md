@@ -128,4 +128,57 @@ fase 2. Sin embargo, los tests E2E cubren la brecha de integración identificada
 (proxy timeout no diagnosticado, flujo end-to-end no verificado). El test
 `test_dashboard_error_state` valida que el mensaje de error en español se
 muestra cuando el backend no responde, cubriendo parcialmente H15/H16
+
+## Fase 5 (bis) — Skill personalizada `formato-financiero`
+
+| Ítem | Entrega | Commit |
+|---|---|---|
+| Skill | 10 reglas de análisis financiero (R1–R10) | `00e9c37` |
+| SKILL.md | Definición, árbol de decisión, especificación de formato | `00e9c37` |
+| scripts/ | `financial_review.py` (10 reglas) + `quick_pulse.py` (5‑seg) | `00e9c37` |
+| examples/ | `financial_dashboard_analysis.py` + `report-sample.md` (360 movs) | `00e9c37` |
+| references/ | `financial-standards.md` (benchmarks analista) | `00e9c37` |
+| README / LICENSE / CONTRIBUTING | Documentación de la skill | `00e9c37` |
+
+### Resumen de resultados
+
+**Origen**: Creación manual en `.agents/skills/formato-financiero/` simulando
+10+ años de experiencia como analista financiero. No instalada via `npx skills add`.
+
+**Estructura**: 9 ficheros (1.434 líneas totales):
+- `SKILL.md` — 274 líneas con metadata YAML, 10 reglas (R1–R10), árbol de decisión
+  de 3 enfoques, especificación de formato y guía de gestión de contexto.
+- `scripts/financial_review.py` — 540 líneas. Motor completo que obtiene datos de
+  `/api/metrics`, calcula KPIs agregados, agrupación mensual, crecimiento, medias
+  móviles, concentración por categoría, mix B2B/B2C, ratios de liquidez, y genera
+  informe Markdown estructurado con observaciones y recomendaciones priorizadas P0–P3.
+- `scripts/quick_pulse.py` — 71 líneas. Chequeo rápido de 5 salud: ingresos, gastos,
+  beneficio neto, margen, relación coste/ingreso.
+- `examples/financial_dashboard_analysis.py` — 71 líneas. Ejemplo anotado que importa
+  y ejecuta las 10 reglas con comentarios sobre umbrales y justificación.
+- `examples/report-sample.md` — 118 líneas. Salida real contra el dashboard en
+  ejecución (360 movimientos, 12 meses).
+- `references/financial-standards.md` — 111 líneas. Benchmarks de profitability,
+  cost structure, cash flow, revenue health, anomaly detection, segment mix,
+  category concentration y el "Graham Rule" para growth vs profitability.
+
+**Verificación**: Los 3 scripts se ejecutaron end-to-end contra la API real
+(`docker compose up -d`, puerto 8000) con estos resultados:
+- 360 movimientos cargados, 12 meses de datos
+- Quick Pulse: ✅ All clear — healthy financial position (39.4% margin)
+- Full Review: 4 ✅ positivos, 16 ⚠️ warnings, 8 ❌ críticos
+- Hallazgos destacados: ingresos declinando 3+ meses consecutivos,
+  overhead administrativo >15%, 3 meses de margen negativo, 3 meses de
+  cash flow negativo, picos de gasto >50% MoM, concentración 90% en categoría
+  "sales", márgenes B2B (23.8%) muy por debajo de B2C (54.4%).
+
+**Lecciones**:
+- Las funciones de análisis deben diseñarse con firmas explícitas (kpis, monthly,
+  movements) para facilitar importación desde scripts externos.
+- Los umbrales (15% overhead, 50% MoM spike, 3-month revenue decline) deben
+  documentarse tanto en SKILL.md como en el reference sheet.
+- El informe generado incluye automaticamente tally de positivos/warnings/criticals
+  para el executive summary.</think>
+
+<｜DSML｜parameter name="explanation" string="true">Add the formato-financiero skill section to progress.md
 (diagnóstico/UX incompletos).

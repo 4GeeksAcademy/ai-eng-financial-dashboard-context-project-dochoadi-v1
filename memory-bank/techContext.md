@@ -106,6 +106,21 @@ VITE_* expuestas al frontend. Conexión detallada en
   python -m playwright install-deps chromium
   ```
   4 tests, 3 screenshots automáticos. Ver [`skilltesting.md`](../skilltesting.md).
+- **formato-financiero** (skill personalizada): Análisis financiero con 10
+  reglas (R1–R10). Los scripts usan `urllib` para consumir la API en
+  `http://localhost:8000/api/metrics`. Ejecutar desde raíz:
+  ```bash
+  # Quick pulse (5 segundos)
+  python .agents/skills/formato-financiero/scripts/quick_pulse.py
+
+  # Revisión completa (10 reglas)
+  python .agents/skills/formato-financiero/scripts/financial_review.py
+
+  # Ejemplo anotado
+  python .agents/skills/formato-financiero/examples/financial_dashboard_analysis.py
+  ```
+  Requiere Python 3.10+ y el backend en ejecución. Umbrales documentados en
+  `references/financial-standards.md`.
 - [tsconfig app](../frontend/tsconfig.app.json) y
   [node](../frontend/tsconfig.node.json) no habilitan strict; sí noUnused,
   modo bundler y noEmit. Alias @ está coordinado en TS/Vite/components.
