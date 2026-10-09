@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceLine,
 } from 'recharts'
 
 interface IncomeOutcomeChartProps {
@@ -35,11 +36,51 @@ export function IncomeOutcomeChart({ data, loading }: IncomeOutcomeChartProps) {
 
   const hasData = data.some((d) => d.income > 0 || d.outcome > 0)
 
+  // --- Volatility indicator ---
+  const incomes = data.filter((d) => d.income > 0).map((d) => d.income)
+  const avgIncome = incomes.length ? incomes.reduce((a, b) => a + b, 0) / incomes.length : 0
+  const variance =
+    incomes.length > 1
+      ? Math.sqrt(
+          incomes.reduce((sum, v) => sum + (v - avgIncome) ** 2, 0) / incomes.length
+        )
+      : 0
+  const cv = avgIncome > 0 ? variance / avgIncome : 0 // coefficient of variation
+  const volatilityLabel =
+    cv > 0.5 ? 'High volatility' : cv > 0.25 ? 'Moderate volatility' : 'Low volatility'
+  const volatilityColor =
+    cv > 0.5 ? 'var(--color-destructive)' : cv > 0.25 ? 'var(--color-warning)' : 'var(--color-success)'
+
+  // --- Concentration callout ---
+  const topIncomeMonth = Math.max(...data.map((d) => d.income))
+  const totalIncome = data.reduce((s, d) => s + d.income, 0)
+  const concentrationPct = totalIncome > 0 ? (topIncomeMonth / totalIncome) * 100 : 0
+  const hasHighConcentration = concentrationPct > 40
+
+  // --- Average outcome ReferenceLine ---
+  const outcomes = data.filter((d) => d.outcome > 0).map((d) => d.outcome)
+  const avgOutcome = outcomes.length ? outcomes.reduce((a, b) => a + b, 0) / outcomes.length : 0
+
   return (
     <Card className="border-border/60">
       <CardHeader className="pb-4">
-        <CardTitle className="text-base font-semibold">Income vs. Outcome</CardTitle>
-        <CardDescription>Monthly revenue and expenditure evolution</CardDescription>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-semibold">Income vs. Outcome</CardTitle>
+          {hasData && (
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: volatilityColor }}>
+              <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: volatilityColor }} />
+              {volatilityLabel}
+            </span>
+          )}
+        </div>
+        <CardDescription>
+          Monthly revenue and expenditure evolution
+          {hasData && hasHighConcentration && (
+            <span className="ml-2 text-destructive font-medium">
+              ⚠ {concentrationPct.toFixed(0)}% income concentrated in top month
+            </span>
+          )}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {!hasData ? (
@@ -68,6 +109,12 @@ export function IncomeOutcomeChart({ data, loading }: IncomeOutcomeChartProps) {
                 formatter={(value) => (
                   <span className="text-xs text-muted-foreground capitalize">{value}</span>
                 )}
+              />
+              <ReferenceLine
+                y={avgOutcome}
+                stroke="var(--color-success)"
+                strokeWidth={1}
+                strokeDasharray="4 4"
               />
               <Line
                 type="monotone"

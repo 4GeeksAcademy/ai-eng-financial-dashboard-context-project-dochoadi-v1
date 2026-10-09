@@ -12,6 +12,7 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from 'recharts'
+import { findSignificantMarginChanges } from '@/lib/financial-utils'
 
 interface ProfitPercentChartProps {
   data: MonthlyDataPoint[]
@@ -34,6 +35,27 @@ export function ProfitPercentChart({ data, loading }: ProfitPercentChartProps) {
   }
 
   const hasData = data.some((d) => d.profitPercent !== 0)
+  const significantChanges = findSignificantMarginChanges(data, 10)
+  const significantMonthSet = new Set(significantChanges.map((c) => c.month))
+
+  const renderDot = (props: Record<string, unknown>) => {
+    const { cx, cy, payload } = props as { cx: number; cy: number; payload: MonthlyDataPoint }
+    if (significantMonthSet.has(payload.month)) {
+      const change = significantChanges.find((c) => c.month === payload.month)
+      const isPositive = change ? change.change > 0 : true
+      return (
+        <circle
+          cx={cx}
+          cy={cy}
+          r={6}
+          fill={isPositive ? 'var(--chart-income, #22c55e)' : 'var(--chart-outcome, #ef4444)'}
+          stroke="var(--color-background, #000)"
+          strokeWidth={2}
+        />
+      )
+    }
+    return <circle cx={cx} cy={cy} r={3} fill="var(--chart-profit)" strokeWidth={0} />
+  }
 
   return (
     <Card className="border-border/60">
@@ -66,13 +88,24 @@ export function ProfitPercentChart({ data, loading }: ProfitPercentChartProps) {
               />
               <ReferenceLine y={0} stroke="var(--color-border)" strokeDasharray="4 4" />
               <Tooltip content={<ProfitPercentTooltip />} />
+              {significantChanges.length > 0 && (
+                <Line
+                  type="monotone"
+                  dataKey="profitPercent"
+                  stroke="transparent"
+                  strokeWidth={0}
+                  dot={renderDot}
+                  activeDot={renderDot}
+                  legendType="none"
+                />
+              )}
               <Line
                 type="monotone"
                 dataKey="profitPercent"
                 name="profitPercent"
                 stroke="var(--chart-profit)"
                 strokeWidth={2}
-                dot={{ r: 3, fill: 'var(--chart-profit)', strokeWidth: 0 }}
+                dot={significantChanges.length > 0 ? false : { r: 3, fill: 'var(--chart-profit)', strokeWidth: 0 }}
                 activeDot={{ r: 5, strokeWidth: 0 }}
               />
             </LineChart>

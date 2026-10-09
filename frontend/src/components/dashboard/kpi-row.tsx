@@ -1,16 +1,25 @@
 import { KPICard } from './kpi-card'
 import { type KPIMetrics } from '@/lib/financial-types'
 import { formatCurrency, formatPercent } from '@/lib/financial-utils'
-import { TrendingUp, TrendingDown, DollarSign, BarChart2 } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, BarChart2, Percent } from 'lucide-react'
 
 interface KPIRowProps {
   metrics: KPIMetrics | null
   loading?: boolean
 }
 
+function getProfitHealth(profitPercent: number): 'healthy' | 'warning' | 'critical' {
+  if (profitPercent > 15) return 'healthy'
+  if (profitPercent >= 5) return 'warning'
+  return 'critical'
+}
+
 export function KPIRow({ metrics, loading }: KPIRowProps) {
+  const costRatio = metrics ? metrics.costToIncomeRatio : null
+  const profitHealth = metrics ? getProfitHealth(metrics.profitPercent) : undefined
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
       <KPICard
         label="Total Income"
         value={metrics ? formatCurrency(metrics.totalIncome) : '—'}
@@ -41,6 +50,15 @@ export function KPIRow({ metrics, loading }: KPIRowProps) {
         helperText="Profit as a percentage of total income"
         icon={BarChart2}
         variant="profitPercent"
+        health={profitHealth}
+        loading={loading}
+      />
+      <KPICard
+        label="Cost-to-Income"
+        value={costRatio !== null ? formatPercent(costRatio) : '—'}
+        helperText="Total outcome as a percentage of income"
+        icon={Percent}
+        variant="costRatio"
         loading={loading}
       />
     </div>
