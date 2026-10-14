@@ -13,7 +13,7 @@ Guía para una sesión nueva del agente. Aquí se enlaza, no se copia: los tipos
 
 Las decisiones `D1`–`D17` de [verification.md](./verification.md) resuelven las dudas de la prueba en frío (fase 4) y **prevalecen sobre el brief**. Las marcadas **PM** esperan confirmación.
 
-- **Prerrequisitos de backend (en este repo, `backend/app/routes.py`), con tests, antes de publicar:** (D1) `baseline_average` = media de exactamente 3 períodos anteriores; (D2) `categories/top` devuelve `percentage_of_group` y `group_total`. `percentage_of_group` sigue ❌ en verification.md hasta implementarlo y verificarlo.
+- **Sin cambios de backend.** Los tipos de `api-types.ts` reflejan lo que la API devuelve hoy. Lo que falta se calcula en el frontend: total del grupo y porcentaje por categoría (D2). `baseline_average` se muestra tal cual (media histórica acumulada, D1, pendiente PM).
 - **Algoritmo de alertas, desarrollo con fixtures y moneda:** D15–D17.
 - **`GET /api/metrics` está verificado en el código** (devuelve `FinancialMovement[]` y acepta `start_date`/`end_date`), no ejecutado contra la API en marcha.
 - **`AlertsParams`** no incluye `group_by` ni `business_type` a propósito (siempre `month`, sin `business_type`).
@@ -71,7 +71,7 @@ Siempre que haya facetas se muestra `Rango disponible: min_date – max_date`.
 
 **Tipos**
 
-- Respuesta: [`AlertsResponse`](./api-types.ts#L59) y [`AlertEntry`](./api-types.ts#L36) (`period`, `outcome_total`, `baseline_average`, `increase_ratio`).
+- Respuesta: [`AlertsResponse`](./api-types.ts#L61) y [`AlertEntry`](./api-types.ts#L36) (`period`, `outcome_total`, `baseline_average`, `increase_ratio`).
 - Parámetros: [`AlertsParams`](./param-types.ts#L19) (extiende [`DateRangeFilter`](./param-types.ts#L6)).
 
 **Parámetros**
@@ -89,7 +89,7 @@ Siempre que haya facetas se muestra `Rango disponible: min_date – max_date`.
 |---|---|
 | Umbral fuera de `0.01`–`1.0` | No se consulta. Input: `El umbral debe estar entre 0,01 y 1,0.` Tabla: `Corrige el umbral para consultar anomalías.` |
 | Sin alertas | La tabla no desaparece: 4 columnas y una fila con `No se detectaron anomalías para el umbral X` (ej. `0,3`). |
-| Períodos iniciales sin 3 previos | Una vez aplicada la decisión del backend (media de exactamente 3 períodos), esos períodos no pueden tener alerta y no aparecen. Decidido en D1: el backend no los devuelve; la UI no los filtra. |
+| Primer período del rango | No tiene períodos anteriores: la API no lo evalúa y no aparece (D1). La UI no filtra ni recalcula. |
 | Fallo de la petición | Fila con `No se pudieron cargar las anomalías.`; no se sustituye por lista vacía. |
 | Fila con campos ausentes, no numéricos o `period` ≠ `YYYY-MM` | `Se recibieron datos de anomalías inválidos.` |
 | Cargando | Cabecera, filas de carga y `Cargando anomalías…`; nunca el mensaje de vacío. |
@@ -104,21 +104,21 @@ Formato: `outcome_total` y `baseline_average` con miles y 2 decimales, sin moned
 
 **Endpoints** (ambos ✅ verificados)
 
-- `GET /api/metrics/categories/top?operation_type=income&limit=5&business_type=B2B|B2C`, una llamada por línea de negocio.
+- `GET /api/metrics/categories/top?operation_type=income&limit=20&business_type=B2B|B2C`, una llamada por línea de negocio. `limit=20` trae todas las categorías para poder sumar el total del grupo; la UI muestra las 5 primeras (D2).
 - `GET /api/metrics/facets`: categorías y líneas de negocio válidas.
 
 **Tipos**
 
-- Respuesta: [`TopCategoriesResponse`](./api-types.ts#L87) y [`CategoryEntry`](./api-types.ts#L67); [`FacetsResponse`](./api-types.ts#L7) (`categories`, `business_types`).
+- Respuesta: [`TopCategoriesResponse`](./api-types.ts#L88) y [`CategoryEntry`](./api-types.ts#L69); [`FacetsResponse`](./api-types.ts#L7) (`categories`, `business_types`).
 - Parámetros: [`TopCategoriesParams`](./param-types.ts#L28).
-- `percentage_of_group` y `group_total` ya están en `CategoryEntry` como contrato objetivo (D2); el backend aún no los devuelve.
+- La API **no** devuelve porcentaje ni total del grupo. El frontend los calcula (D2) en [`BusinessIncomeBreakdown`](./api-types.ts#L110) y [`CategoryShareRow`](./api-types.ts#L100), tipos solo de UI.
 
 **Parámetros**
 
 | Parámetro | Obligatorio | Valores válidos y restricciones |
 |---|---|---|
 | `operation_type` | no | `income` u `outcome` (por defecto `outcome`). Aquí siempre `income`. |
-| `limit` | no | Entero `1`–`20` (por defecto `5`). Aquí siempre `5`. |
+| `limit` | no | Entero `1`–`20` (por defecto `5`). Aquí siempre `20` (D2). |
 | `business_type` | no | `B2B` o `B2C`. Aquí uno distinto por panel. |
 | `start_date`, `end_date` | no | `YYYY-MM-DD`; mismo rango para ambos paneles y el gráfico. |
 
@@ -132,6 +132,6 @@ Formato: `outcome_total` y `baseline_average` con miles y 2 decimales, sin moned
 | Falla un solo panel | Ese panel muestra `No se pudieron cargar las categorías de ingresos B2B.` (o B2C); el otro sigue visible. |
 | Falta el total de un grupo | El gráfico no inventa un cero: `La comparativa está incompleta: falta el total de B2B.` (o B2C). |
 | Fallo del gráfico | `No se pudo cargar la comparativa de ingresos.` |
-| Categoría fuera de facetas, `operation_type` ≠ `income`, porcentaje fuera de `0`–`100` o total no numérico | `Se recibieron datos de categorías inválidos.` en el panel afectado. |
+| Categoría fuera de facetas, `operation_type` ≠ `income` o `total_amount` no numérico o negativo | `Se recibieron datos de categorías inválidos.` en el panel afectado. |
 
 El gráfico es una serie con dos puntos (`B2B`, `B2C`) con el **total completo** de ingresos de cada grupo, no la suma del top-5.

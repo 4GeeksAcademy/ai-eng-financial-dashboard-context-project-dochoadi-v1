@@ -45,8 +45,9 @@ export interface AlertEntry {
    */
   outcome_total: number
   /**
-   * Average of exactly the 3 preceding periods (target contract, decision D1 in
-   * verification.md). TODAY the API returns an expanding historical average instead.
+   * Average outcome of ALL preceding periods inside the filtered range (expanding
+   * historical average, as `detect_outcome_alerts` computes it today), rounded to
+   * 2 decimals. It is NOT a 3-period moving average; see decision D1 in verification.md.
    * @see GET /api/metrics/alerts
    */
   baseline_average: number
@@ -82,21 +83,6 @@ export interface CategoryEntry {
    * @see GET /api/metrics/categories/top
    */
   total_amount: number
-  /**
-   * TARGET CONTRACT (decision D2, not yet implemented/verified in the API; see
-   * verification.md ❌ row). Share of this category over the full group total, in
-   * percent, scale 0–100, rounded to 2 decimals. The group is
-   * (business_type, operation_type, date range), NOT limited by `limit`.
-   * @see GET /api/metrics/categories/top
-   */
-  percentage_of_group: number
-  /**
-   * TARGET CONTRACT (decision D2). Total of ALL movements of the group (all
-   * categories, ignoring `limit`), repeated in every entry. The response stays a
-   * plain array (backward compatible). An empty array means the group total is 0.
-   * @see GET /api/metrics/categories/top
-   */
-  group_total: number
 }
 
 export interface TopCategoriesResponse extends ReadonlyArray<CategoryEntry> {
@@ -105,6 +91,27 @@ export interface TopCategoriesResponse extends ReadonlyArray<CategoryEntry> {
    * @see GET /api/metrics/categories/top
    */
   readonly [index: number]: CategoryEntry
+}
+
+/**
+ * UI-only derived row (not an API type). Computed in the frontend from
+ * `TopCategoriesResponse` (decision D2): the API does not return any share.
+ */
+export interface CategoryShareRow extends CategoryEntry {
+  /** `total_amount / groupTotal * 100`, scale 0–100; `0` when `groupTotal` is `0`. */
+  percentageOfGroup: number
+}
+
+/**
+ * UI-only derived data for one business line (not an API type). Built from a
+ * `categories/top` call with `operation_type=income` and `limit=20` (every
+ * category in the dataset, D2).
+ */
+export interface BusinessIncomeBreakdown {
+  /** Sum of `total_amount` of ALL returned entries; `0` for an empty response. */
+  groupTotal: number
+  /** First 5 entries in API order (`total_amount` descending), with their share. */
+  topRows: CategoryShareRow[]
 }
 
 /**
