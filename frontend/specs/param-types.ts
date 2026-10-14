@@ -16,6 +16,11 @@ export interface DateRangeFilter {
   end_date?: string
 }
 
+/**
+ * Params of GET /api/metrics/alerts. Documented as the API is today; the UI does
+ * NOT call this endpoint (D1: it computes a 3-period moving average from
+ * GET /api/metrics/summary instead, see `SummaryParams`).
+ */
 export interface AlertsParams extends DateRangeFilter {
   /**
    * Minimum increase ratio that triggers an alert. Valid values are numbers greater
@@ -23,8 +28,22 @@ export interface AlertsParams extends DateRangeFilter {
    * @see GET /api/metrics/alerts
    */
   threshold?: number
-  // `group_by` (always `month`) and `business_type` (never sent) exist in the API
-  // but are intentionally NOT part of this type: the UI does not expose them (D1).
+  // `group_by` and `business_type` exist in the API but are not part of this type.
+}
+
+/**
+ * Params of GET /api/metrics/summary as the UI sends them for the anomaly table
+ * (D1): only the global date range plus a fixed `group_by=month`. `category`,
+ * `operation_type` and `business_type` exist in the API but are never sent.
+ * The threshold is NOT sent: it is applied in the frontend.
+ */
+export interface SummaryParams extends DateRangeFilter {
+  /**
+   * Aggregation period. The API accepts `day`, `week` or `month` (default
+   * `month`); the UI always sends `month`.
+   * @see GET /api/metrics/summary
+   */
+  group_by: 'month'
 }
 
 export interface TopCategoriesParams extends DateRangeFilter {

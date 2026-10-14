@@ -23,3 +23,38 @@ export interface MonthlyDataPoint {
   outcome: number
   profitPercent: number
 }
+
+// JSON item of GET /api/metrics/categories/top (TopCategoryItem in the API)
+export interface TopCategoryItem {
+  category: Category
+  operation_type: OperationType
+  total_amount: number
+}
+
+// JSON item of GET /api/metrics/summary (MetricsSummaryItem in the API)
+export interface MetricsSummaryItem {
+  period: string
+  income: number
+  outcome: number
+  net: number
+}
+
+// Derived in the frontend: the API does not return shares or group totals
+export interface CategoryShare {
+  category: Category
+  totalAmount: number
+  percentageOfGroup: number
+}
+
+export interface IncomeBreakdown {
+  groupTotal: number
+  topRows: CategoryShare[]
+}
+
+// Derived in the frontend: 3-period moving-average outcome alert
+export interface AnomalyAlert {
+  period: string
+  outcomeTotal: number
+  baselineAverage: number
+  increaseRatio: number
+}

@@ -13,10 +13,10 @@ Guía para una sesión nueva del agente. Aquí se enlaza, no se copia: los tipos
 
 Las decisiones `D1`–`D17` de [verification.md](./verification.md) resuelven las dudas de la prueba en frío (fase 4) y **prevalecen sobre el brief**. Las marcadas **PM** esperan confirmación.
 
-- **Sin cambios de backend.** Los tipos de `api-types.ts` reflejan lo que la API devuelve hoy. Lo que falta se calcula en el frontend: total del grupo y porcentaje por categoría (D2). `baseline_average` se muestra tal cual (media histórica acumulada, D1, pendiente PM).
+- **Sin cambios de backend.** Los tipos de `api-types.ts` reflejan lo que la API devuelve hoy. Lo que falta se calcula en el frontend, en `src/lib/financial-utils.ts` y con tests: media móvil de 3 y alertas (`computeAnomalyAlerts`, D1) y total del grupo y porcentaje por categoría (`computeIncomeBreakdown`, D2).
 - **Algoritmo de alertas, desarrollo con fixtures y moneda:** D15–D17.
 - **`GET /api/metrics` está verificado en el código** (devuelve `FinancialMovement[]` y acepta `start_date`/`end_date`), no ejecutado contra la API en marcha.
-- **`AlertsParams`** no incluye `group_by` ni `business_type` a propósito (siempre `month`, sin `business_type`).
+- **Alertas:** se usa `GET /api/metrics/summary` con `SummaryParams` (`group_by=month` + rango) y el umbral se aplica en el frontend; `AlertsParams` solo documenta el endpoint `alerts`, que no se usa (D1).
 - **El umbral de la UI es más estricto que el de la API** (`0.01`–`1.0` frente a `>= 0`).
 - `Validation_componets.md` es histórico (validó una versión anterior de `components.md`); no es fuente.
 
@@ -37,7 +37,7 @@ Las decisiones `D1`–`D17` de [verification.md](./verification.md) resuelven la
 **Tipos**
 
 - Respuesta: [`FacetsResponse`](./api-types.ts#L7) (`min_date`, `max_date`).
-- Parámetros: [`DateRangeFilter`](./param-types.ts#L6), [`MetricsParams`](./param-types.ts#L48).
+- Parámetros: [`DateRangeFilter`](./param-types.ts#L6), [`MetricsParams`](./param-types.ts#L74).
 
 **Parámetros**
 
@@ -67,34 +67,35 @@ Siempre que haya facetas se muestra `Rango disponible: min_date – max_date`.
 
 **Requisito:** [pm-brief.md, Funcionalidad 2](./pm-brief.md). Detalle de UI: [components.md, Funcionalidad 2](./components.md#funcionalidad-2--tabla-de-alertas-de-anomalías).
 
-**Endpoint:** `GET /api/metrics/alerts?threshold=<ratio>` ✅ verificado.
+**Endpoint:** `GET /api/metrics/summary?group_by=month` (+ rango) ✅ verificado. El brief cita `GET /api/metrics/alerts`, pero ese endpoint calcula una media acumulada y no la media móvil de 3, así que **no se usa** (D1): el umbral se aplica en el frontend.
 
 **Tipos**
 
-- Respuesta: [`AlertsResponse`](./api-types.ts#L61) y [`AlertEntry`](./api-types.ts#L36) (`period`, `outcome_total`, `baseline_average`, `increase_ratio`).
-- Parámetros: [`AlertsParams`](./param-types.ts#L19) (extiende [`DateRangeFilter`](./param-types.ts#L6)).
+- Respuesta: [`SummaryResponse`](./api-types.ts#L122) y [`SummaryEntry`](./api-types.ts#L97) (`period`, `income`, `outcome`, `net`).
+- Derivado en el frontend: `AnomalyAlert` (`period`, `outcomeTotal`, `baselineAverage`, `increaseRatio`), re-exportado en [api-types.ts](./api-types.ts#L136).
+- Parámetros: [`SummaryParams`](./param-types.ts#L40) (extiende [`DateRangeFilter`](./param-types.ts#L6)).
 
 **Parámetros**
 
 | Parámetro | Obligatorio | Valores válidos y restricciones |
 |---|---|---|
-| `threshold` | no | API: número `>= 0`, sin máximo, por defecto `0.3`. **UI: `0.01`–`1.0`**, por defecto `0.3`. |
+| `threshold` | — | No se envía: se aplica en el frontend. **UI: `0.01`–`1.0`**, por defecto `0.3`. |
 | `start_date`, `end_date` | no | `YYYY-MM-DD`; comparten el rango de la Funcionalidad 1. |
-| `group_by` | no | API: `day`, `week`, `month` (por defecto `month`). No está en `AlertsParams`. |
-| `business_type` | no | API: `B2B` o `B2C`. No está en `AlertsParams`. |
+| `group_by` | sí (UI) | Siempre `month`. |
+| `category`, `operation_type`, `business_type` | no | Existen en la API; no se envían. |
 
 **Casos límite**
 
 | Caso | Qué debe mostrar la UI |
 |---|---|
-| Umbral fuera de `0.01`–`1.0` | No se consulta. Input: `El umbral debe estar entre 0,01 y 1,0.` Tabla: `Corrige el umbral para consultar anomalías.` |
+| Umbral fuera de `0.01`–`1.0` | No se recalcula. Input: `El umbral debe estar entre 0,01 y 1,0.` Tabla: `Corrige el umbral para consultar anomalías.` |
 | Sin alertas | La tabla no desaparece: 4 columnas y una fila con `No se detectaron anomalías para el umbral X` (ej. `0,3`). |
-| Primer período del rango | No tiene períodos anteriores: la API no lo evalúa y no aparece (D1). La UI no filtra ni recalcula. |
+| Los 3 primeros períodos del rango | No tienen 3 períodos anteriores: no se evalúan y no aparecen (D1, D15). |
 | Fallo de la petición | Fila con `No se pudieron cargar las anomalías.`; no se sustituye por lista vacía. |
-| Fila con campos ausentes, no numéricos o `period` ≠ `YYYY-MM` | `Se recibieron datos de anomalías inválidos.` |
+| Período del resumen con campos ausentes, no numéricos o `period` ≠ `YYYY-MM` | `Se recibieron datos de anomalías inválidos.` |
 | Cargando | Cabecera, filas de carga y `Cargando anomalías…`; nunca el mensaje de vacío. |
 
-Formato: `outcome_total` y `baseline_average` con miles y 2 decimales, sin moneda; `increase_ratio` como porcentaje (`1.0201` → `102,01 %`).
+Formato: `outcomeTotal` y `baselineAverage` con miles y 2 decimales, sin moneda; `increaseRatio` como porcentaje (`1.0201` → `102,01 %`).
 
 ---
 
@@ -109,9 +110,9 @@ Formato: `outcome_total` y `baseline_average` con miles y 2 decimales, sin moned
 
 **Tipos**
 
-- Respuesta: [`TopCategoriesResponse`](./api-types.ts#L88) y [`CategoryEntry`](./api-types.ts#L69); [`FacetsResponse`](./api-types.ts#L7) (`categories`, `business_types`).
-- Parámetros: [`TopCategoriesParams`](./param-types.ts#L28).
-- La API **no** devuelve porcentaje ni total del grupo. El frontend los calcula (D2) en [`BusinessIncomeBreakdown`](./api-types.ts#L110) y [`CategoryShareRow`](./api-types.ts#L100), tipos solo de UI.
+- Respuesta: [`TopCategoriesResponse`](./api-types.ts#L89) y [`CategoryEntry`](./api-types.ts#L70); [`FacetsResponse`](./api-types.ts#L7) (`categories`, `business_types`).
+- Parámetros: [`TopCategoriesParams`](./param-types.ts#L49).
+- La API **no** devuelve porcentaje ni total del grupo. El frontend los calcula (D2) con `computeIncomeBreakdown` (`src/lib/financial-utils.ts`) en `IncomeBreakdown` y `CategoryShare`, tipos solo de UI re-exportados en [api-types.ts](./api-types.ts#L136).
 
 **Parámetros**
 

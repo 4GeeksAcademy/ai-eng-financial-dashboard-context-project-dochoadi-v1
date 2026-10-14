@@ -97,44 +97,44 @@ Mostrar los períodos mensuales cuyo gasto supera, en más del umbral, la media 
 | nombre | tipo | obligatoria sí/no | descripción |
 |---|---|---|---|
 | `threshold` | `number` | sí | Umbral aplicado (inicial `0.3`). Valor inicial del input; el input guarda internamente el texto escrito aún sin aplicar (no controlado por el padre). |
-| `onChange` | `(threshold: number) => void` | sí | Solo con un valor válido `0.01 ≤ x ≤ 1.0`, 300 ms después de la última edición (D7). |
+| `onChange` | `(threshold: number) => void` | sí | Solo con un valor válido `0.01 ≤ x ≤ 1.0`, 300 ms después de la última edición (D7). Recalcula las alertas sin nueva petición. |
 | `onInvalidChange` | `(invalid: boolean) => void` | sí | Se llama cada vez que cambia la validez del texto escrito (`true` al volverse inválido, `false` al volver a ser válido). El contenedor lo pasa a `AnomalyAlertsTable.thresholdInvalid`. |
 
-`<input type="number" min="0.01" max="1" step="0.01">` con etiqueta `Umbral de alerta`. Un campo vacío, no numérico o fuera de rango no llama a `onChange`: muestra `El umbral debe estar entre 0,01 y 1,0.` (`aria-invalid`). Mientras es inválido, el umbral aplicado (y la consulta) no cambian.
+`<input type="number" min="0.01" max="1" step="0.01">` con etiqueta `Umbral de alerta`. Un campo vacío, no numérico o fuera de rango no llama a `onChange`: muestra `El umbral debe estar entre 0,01 y 1,0.` (`aria-invalid`). Mientras es inválido, el umbral aplicado (y las alertas) no cambian.
 
 #### `AnomalyAlertsTable`
 
 | nombre | tipo | obligatoria sí/no | descripción |
 |---|---|---|---|
-| `alerts` | `RequestState<AlertsResponse>` | sí | Resultado de la consulta con el umbral y el rango aplicados. |
+| `alerts` | `RequestState<AnomalyAlert[]>` | sí | El contenedor pide `GET /api/metrics/summary?group_by=month` con el rango aplicado y calcula `computeAnomalyAlerts(summary, threshold)` (D1). Un cambio de umbral solo recalcula. |
 | `threshold` | `number` | sí | Umbral aplicado; se usa en el texto de estado vacío. |
 | `thresholdInvalid` | `boolean` | sí | `true` mientras el input contiene un valor inválido. |
 
-Las cuatro columnas (cabeceras exactas: `Período`, `Outcome registrado`, `Media de los períodos anteriores`, `Incremento porcentual`):
+Las cuatro columnas (cabeceras exactas: `Período`, `Outcome registrado`, `Media de los 3 períodos anteriores`, `Incremento porcentual`):
 
 | columna | tipo de dato | formato |
 |---|---|---|
-| Período | `AlertEntry['period']` | `YYYY-MM` literal. |
-| Outcome registrado | `AlertEntry['outcome_total']` | Número común (D10). |
-| Media de los períodos anteriores | `AlertEntry['baseline_average']` | Número común; valor de la API sin recalcular (D1). |
-| Incremento porcentual | `AlertEntry['increase_ratio']` | Porcentaje común. |
+| Período | `AnomalyAlert['period']` | `YYYY-MM` literal. |
+| Outcome registrado | `AnomalyAlert['outcomeTotal']` | Número común (D10). |
+| Media de los 3 períodos anteriores | `AnomalyAlert['baselineAverage']` | Número común; media móvil calculada en el frontend (D1). |
+| Incremento porcentual | `AnomalyAlert['increaseRatio']` | Porcentaje común. |
 
-La tabla se monta bajo los gráficos existentes, tiene `<caption>` `Alertas de anomalías de gasto` y ordena por `period` ascendente (el orden del backend).
+La tabla se monta bajo los gráficos existentes, tiene `<caption>` `Alertas de anomalías de gasto` y ordena por `period` ascendente (orden de `computeAnomalyAlerts`).
 
 ### 4. Estados
 
 | estado | qué ve exactamente el usuario |
 |---|---|
 | cargando | Cabecera de las cuatro columnas, filas de carga y `Cargando anomalías…`; nunca el mensaje de vacío. |
-| vacío | Cuatro columnas y una fila de ancho completo `No se detectaron anomalías para el umbral {threshold}` (ej. `0,3`). Con un filtro de fechas activo se añade ` El primer período del rango no se evalúa.` (D15). La tabla no desaparece. |
+| vacío | Cuatro columnas y una fila de ancho completo `No se detectaron anomalías para el umbral {threshold}` (ej. `0,3`). Con un filtro de fechas activo se añade ` Los 3 primeros períodos del rango no se evalúan.` (D15). La tabla no desaparece. |
 | error | Cuatro columnas y una fila de ancho completo `No se pudieron cargar las anomalías.`. |
-| dato parcial o inválido | Todo o nada (D11): si alguna fila tiene campos ausentes, no numéricos o `period` ≠ `^\d{4}-(0[1-9]\|1[0-2])$`, solo se ve `Se recibieron datos de anomalías inválidos.` en la fila de ancho completo. Con `thresholdInvalid`: no se consulta y la fila muestra `Corrige el umbral para consultar anomalías.`; prevalece sobre cualquier otro estado. |
+| dato parcial o inválido | Todo o nada (D11): si algún período del resumen tiene campos ausentes, no numéricos o `period` ≠ `^\d{4}-(0[1-9]\|1[0-2])$`, solo se ve `Se recibieron datos de anomalías inválidos.` en la fila de ancho completo. Con `thresholdInvalid`: no se recalcula y la fila muestra `Corrige el umbral para consultar anomalías.`; prevalece sobre cualquier otro estado. |
 
 ### 5. Decisiones aplicadas
 
-D1 (dato de la API tal cual: media de todos los períodos anteriores del rango, `>` estricto; el primer período nunca alerta; la UI no filtra ni recalcula), D3 (la consulta usa el filtro global), D7, D10, D11.
+D1 (media móvil de exactamente 3 períodos calculada en el frontend, `>` estricto; los 3 primeros períodos nunca alertan), D3 (la consulta usa el filtro global), D7, D10, D11.
 
-La UI no envía `group_by` ni `business_type`. No se piden cambios de backend; que la columna no sea una media móvil de 3 (como pide el brief) está pendiente de confirmar por el PM (D1).
+La UI no usa `GET /api/metrics/alerts` (media acumulada) ni pide cambios de backend. Envía solo `group_by=month` y el rango; nunca `business_type`.
 
 ## Funcionalidad 3 — Comparativa B2B frente a B2C
 
@@ -157,7 +157,7 @@ Pestaña `Comparativa B2B vs B2C` (D5). Debajo del filtro de fechas compartido, 
 | nombre | tipo | obligatoria sí/no | descripción |
 |---|---|---|---|
 | `facets` | `FacetsResponse \| null` | sí | Para validar categorías (D6). Si es `null`, no se valida contra facetas y no se produce el estado inválido por categoría desconocida. |
-| `b2b` | `RequestState<BusinessIncomeBreakdown>` | sí | Derivado por el contenedor (D2) de `categories/top` con `business_type: 'B2B'`, `operation_type: 'income'`, `limit: 20` y el filtro global. |
+| `b2b` | `RequestState<IncomeBreakdown>` | sí | Derivado por el contenedor con `computeIncomeBreakdown` (D2) de `categories/top` con `business_type: 'B2B'`, `operation_type: 'income'`, `limit: 20` y el filtro global. |
 | `b2c` | `RequestState<TopCategoriesResponse>` | sí | Igual para `B2C`. |
 
 El filtro de fechas lo pinta `App` (compartido, D3); esta página solo recibe los datos ya filtrados. Las dos peticiones son independientes y no se esperan entre sí. Con un cambio de rango, ambos estados vuelven a `loading` y se cancelan las peticiones obsoletas (D7).
@@ -167,10 +167,10 @@ El filtro de fechas lo pinta `App` (compartido, D3); esta página solo recibe lo
 | nombre | tipo | obligatoria sí/no | descripción |
 |---|---|---|---|
 | `businessType` | `NonNullable<TopCategoriesParams['business_type']>` | sí | `B2B` o `B2C`. |
-| `state` | `RequestState<BusinessIncomeBreakdown>` | sí | Estado de su consulta, con total y porcentajes ya calculados. |
+| `state` | `RequestState<IncomeBreakdown>` | sí | Estado de su consulta, con total y porcentajes ya calculados. |
 | `validCategories` | `FacetsResponse['categories'] \| null` | sí | Lista global de facetas para validar (D6). |
 
-Cabeceras exactas: `Categoría`, `Total de ingresos`, `% del total del grupo`. Cada fila de `topRows`: `category`, `total_amount` (formato común) y `percentageOfGroup` (porcentaje común). Máximo 5 filas, orden del backend (`total_amount` descendente), sin filas de relleno.
+Cabeceras exactas: `Categoría`, `Total de ingresos`, `% del total del grupo`. Cada fila de `topRows`: `category`, `totalAmount` (formato común) y `percentageOfGroup` (porcentaje común). Máximo 5 filas, orden del backend (`total_amount` descendente), sin filas de relleno.
 
 #### `BusinessIncomeComparisonChart`
 
@@ -179,7 +179,7 @@ Cabeceras exactas: `Categoría`, `Total de ingresos`, `% del total del grupo`. C
 | `b2bTotal` | `RequestState<number>` | sí | `groupTotal` B2B, o `0` si la respuesta vino vacía; `error` si su petición falló; `loading` si está en curso. |
 | `b2cTotal` | `RequestState<number>` | sí | Igual para B2C. |
 
-El contenedor (D2) calcula, por línea de negocio y sin cambios de backend: `groupTotal` = suma de `total_amount` de **todas** las entradas (array vacío ⇒ `success` con `0`); `topRows` = las 5 primeras con `percentageOfGroup = total_amount / groupTotal × 100` (`0` si `groupTotal` es `0`). `b2bTotal`/`b2cTotal` salen de `groupTotal`. Gráfico de barras (D12), una serie, dos barras `B2B` y `B2C`; eje Y con el formato común pero con `maximumFractionDigits: 0`; tooltip con el total en formato común (una barra a `0` muestra `0,00`). Muestra el total completo del grupo, no la suma del top-5.
+El contenedor (D2) calcula con `computeIncomeBreakdown`, por línea de negocio y sin cambios de backend: `groupTotal` = suma de `total_amount` de **todas** las entradas (array vacío ⇒ `success` con `0`); `topRows` = las 5 primeras con `percentageOfGroup = total_amount / groupTotal × 100` (`0` si `groupTotal` es `0`). `b2bTotal`/`b2cTotal` salen de `groupTotal`. Gráfico de barras (D12), una serie, dos barras `B2B` y `B2C`; eje Y con el formato común pero con `maximumFractionDigits: 0`; tooltip con el total en formato común (una barra a `0` muestra `0,00`). Muestra el total completo del grupo, no la suma del top-5.
 
 ### 4. Estados
 

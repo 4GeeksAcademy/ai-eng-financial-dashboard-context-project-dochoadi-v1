@@ -47,7 +47,8 @@ export interface AlertEntry {
   /**
    * Average outcome of ALL preceding periods inside the filtered range (expanding
    * historical average, as `detect_outcome_alerts` computes it today), rounded to
-   * 2 decimals. It is NOT a 3-period moving average; see decision D1 in verification.md.
+   * 2 decimals. It is NOT a 3-period moving average, so the UI does not use this
+   * endpoint (D1); kept to document the API as it is.
    * @see GET /api/metrics/alerts
    */
   baseline_average: number
@@ -93,26 +94,50 @@ export interface TopCategoriesResponse extends ReadonlyArray<CategoryEntry> {
   readonly [index: number]: CategoryEntry
 }
 
-/**
- * UI-only derived row (not an API type). Computed in the frontend from
- * `TopCategoriesResponse` (decision D2): the API does not return any share.
- */
-export interface CategoryShareRow extends CategoryEntry {
-  /** `total_amount / groupTotal * 100`, scale 0–100; `0` when `groupTotal` is `0`. */
-  percentageOfGroup: number
+export interface SummaryEntry {
+  /**
+   * Aggregation period. With `group_by=month` it is `YYYY-MM`; months without
+   * movements are absent (not zero). Returned in ascending order.
+   * @see GET /api/metrics/summary
+   */
+  period: string
+  /**
+   * Total income of the period, rounded to 2 decimals.
+   * @see GET /api/metrics/summary
+   */
+  income: number
+  /**
+   * Total outcome of the period, rounded to 2 decimals. Input of the
+   * 3-period moving average computed in the frontend (D1).
+   * @see GET /api/metrics/summary
+   */
+  outcome: number
+  /**
+   * `income - outcome`, rounded to 2 decimals.
+   * @see GET /api/metrics/summary
+   */
+  net: number
+}
+
+export interface SummaryResponse extends ReadonlyArray<SummaryEntry> {
+  /**
+   * Summary entry at the given response-array index.
+   * @see GET /api/metrics/summary
+   */
+  readonly [index: number]: SummaryEntry
 }
 
 /**
- * UI-only derived data for one business line (not an API type). Built from a
- * `categories/top` call with `operation_type=income` and `limit=20` (every
- * category in the dataset, D2).
+ * UI-only types (not API types), derived in the frontend from the responses
+ * above and implemented in `src/lib/financial-utils.ts`:
+ * - `IncomeBreakdown` / `CategoryShare`: `computeIncomeBreakdown`, D2.
+ * - `AnomalyAlert`: `computeAnomalyAlerts`, 3-period moving average, D1.
  */
-export interface BusinessIncomeBreakdown {
-  /** Sum of `total_amount` of ALL returned entries; `0` for an empty response. */
-  groupTotal: number
-  /** First 5 entries in API order (`total_amount` descending), with their share. */
-  topRows: CategoryShareRow[]
-}
+export type {
+  AnomalyAlert,
+  CategoryShare,
+  IncomeBreakdown,
+} from '../src/lib/financial-types'
 
 /**
  * UI-only wrapper for one asynchronous request (not an API type). Lets a component

@@ -93,6 +93,13 @@ mismo día: build y 6 tests en verde, respuestas reales de `categories/top` y
 `alerts` coinciden con los tipos. Detalle y entorno en
 [verification.md de specs](../frontend/specs/verification.md).
 
+Segunda verificación (2026-10-14): D1 resuelto con media móvil de 3 en el
+frontend desde `/api/metrics/summary` (`computeAnomalyAlerts`) y D2 implementado
+(`computeIncomeBreakdown`), ambos con tests (16 en verde). `npm audit fix` dejó
+3 vulnerabilidades moderadas solo de vitest (❓). Con Docker Compose el proxy
+`/api` de Vite sigue sin alcanzar `backend:8000` (❌, H27 sin cambios): el
+dashboard no se validó en navegador.
+
 ## Mantenimiento del Memory Bank
 
 Actualizar documento del área cuando cambien código/contratos, y progress
