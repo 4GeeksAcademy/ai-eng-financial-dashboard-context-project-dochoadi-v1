@@ -99,6 +99,11 @@ frontend desde `/api/metrics/summary` (`computeAnomalyAlerts`) y D2 implementado
 3 vulnerabilidades moderadas solo de vitest (❓). Con Docker Compose el proxy
 `/api` de Vite sigue sin alcanzar `backend:8000` (❌, H27 sin cambios): el
 dashboard no se validó en navegador.
+Después se hizo configurable el destino del proxy (`API_PROXY_TARGET` en
+`vite.config.ts`, por defecto `http://backend:8000`). En este Codespace, con
+`.env` local apuntando a la puerta de enlace Docker, `/api` responde 200 y el
+usuario confirmó el dashboard en el navegador. La causa de red de H27 sigue sin
+corregir.
 
 ## Mantenimiento del Memory Bank
 
