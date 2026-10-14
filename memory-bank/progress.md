@@ -83,6 +83,16 @@ Orden derivado de impacto reproducido en fases 1-2, no roadmap comercial:
 La fase 4 no implementa estas prioridades. Mantener alcance acordado y
 aplicar [reglas activas](../AGENTS.md).
 
+## Corrección de specs del frontend (2026-10-14)
+
+Revisión del manager: los tipos de [api-types.ts](../frontend/specs/api-types.ts)
+reflejan solo lo que la API devuelve hoy, sin pedir cambios de backend. El
+total del grupo y el porcentaje por categoría se calculan en el frontend (D2);
+`baseline_average` se usa tal cual (D1, ❓ PM). Commit `34d33bd`. Verificado el
+mismo día: build y 6 tests en verde, respuestas reales de `categories/top` y
+`alerts` coinciden con los tipos. Detalle y entorno en
+[verification.md de specs](../frontend/specs/verification.md).
+
 ## Mantenimiento del Memory Bank
 
 Actualizar documento del área cuando cambien código/contratos, y progress

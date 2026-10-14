@@ -70,3 +70,17 @@ Las toma el desarrollador para poder construir; las marcadas **PM** requieren su
 | D16 | Desarrollo y tests | F2 y F3 se integran contra la API actual. Los tests (vitest) usan fixtures con la forma real de la respuesta y prueban el cálculo de D2 (suma, porcentaje, top-5, array vacío). No hay prerrequisitos de backend. | yo |
 | D17 | Moneda | Lo nuevo va sin moneda (D10); el dashboard existente no se toca (sigue con `formatCurrency` USD). Unificar queda fuera de alcance. | PM |
 | — | `financial-types.ts` | Comprobado: exporta `OperationType`, `Category` y `BusinessType` (los imports de los `.ts` de specs existen). | ✅ |
+
+## Verificación tras la corrección de la API (2026-10-14, commit `34d33bd`)
+Alcance: specs de tipos y cálculo D2. Revisión del manager: los tipos reflejan la API actual, sin cambios de backend. No se modificó código de `frontend/src` ni del backend.
+
+| Comprobación | Fuente / comando | Resultado | Estado |
+|---|---|---|---|
+| Los tipos compilan (`tsconfig.app.json` incluye `specs/`) | `npm ci` + `npm run build` en `frontend/` (Node 24.21.0) | Build correcto. Solo el aviso conocido de chunk > 500 kB (584,26 kB). | ✅ |
+| Tests existentes | `npm test` (vitest 4.1.4) | 2 ficheros, 6 tests en verde. | ✅ |
+| `CategoryEntry` = respuesta real | `openapi.json` (`TopCategoryItem`) y `GET /api/metrics/categories/top?operation_type=income&limit=20&business_type=B2B\|B2C` | Solo `category`, `operation_type`, `total_amount`. Sin `percentage_of_group` ni `group_total`. | ✅ |
+| `AlertEntry` = respuesta real | `openapi.json` (`MetricsAlert`) y `GET /api/metrics/alerts?threshold=0.3` | `period`, `outcome_total`, `baseline_average`, `increase_ratio`; 4 alertas. | ✅ |
+| Cálculo D2 en frontend con datos reales | Suma de `total_amount` y `total_amount / groupTotal × 100` sobre las respuestas anteriores | B2B: total 615.540,72; `sales` 90,64 %, `others` 9,36 %. B2C: total 642.606,15; `sales` 89,35 %, `others` 10,65 %. Suman 100 %. | ✅ |
+| Semántica de `baseline_average` (D1) | Decisión de PM | Desviación del brief (media acumulada frente a media móvil de 3) pendiente de confirmar. | ❓ |
+
+Entorno: API arrancada con `uvicorn app.main:app` en el puerto 8765, con venv temporal fuera del repo y Python 3.14.2 del Codespace (la imagen usa 3.13; no se probó con Docker). Servidor detenido tras la prueba. Los tests no cubren aún el cálculo D2: se añadirán al implementar F3 (D16).
