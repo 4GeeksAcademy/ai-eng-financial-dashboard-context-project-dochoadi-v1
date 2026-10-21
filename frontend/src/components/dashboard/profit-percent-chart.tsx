@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { type MonthlyDataPoint } from '@/lib/financial-types'
+import { ProfitPercentTooltip } from '@/components/dashboard/chart-tooltip'
 import {
   LineChart,
   Line,
@@ -15,36 +16,6 @@ import {
 interface ProfitPercentChartProps {
   data: MonthlyDataPoint[]
   loading?: boolean
-}
-
-interface TooltipPayload {
-  name: string
-  value: number
-  color: string
-}
-
-interface CustomTooltipProps {
-  active?: boolean
-  payload?: TooltipPayload[]
-  label?: string
-}
-
-function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
-  if (!active || !payload?.length) return null
-  const value = payload[0]?.value ?? 0
-  return (
-    <div className="rounded-lg border border-border bg-card px-4 py-3 shadow-lg text-sm">
-      <p className="font-semibold text-foreground mb-1">{label}</p>
-      <div className="flex items-center gap-2">
-        <span
-          className="inline-block h-2 w-2 rounded-full"
-          style={{ backgroundColor: 'var(--chart-profit)' }}
-        />
-        <span className="text-muted-foreground">Profit margin:</span>
-        <span className="font-medium text-foreground ml-auto pl-4">{value.toFixed(1)}%</span>
-      </div>
-    </div>
-  )
 }
 
 export function ProfitPercentChart({ data, loading }: ProfitPercentChartProps) {
@@ -94,7 +65,7 @@ export function ProfitPercentChart({ data, loading }: ProfitPercentChartProps) {
                 domain={['auto', 'auto']}
               />
               <ReferenceLine y={0} stroke="var(--color-border)" strokeDasharray="4 4" />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<ProfitPercentTooltip />} />
               <Line
                 type="monotone"
                 dataKey="profitPercent"

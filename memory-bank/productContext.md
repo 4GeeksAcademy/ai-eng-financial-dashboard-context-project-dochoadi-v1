@@ -66,6 +66,13 @@ dinámicas. El gráfico de margen confunde valores válidos cero con ausencia
 de datos; ambas limitaciones están reproducidas en
 [análisis de fase 2](phase2-analysis.md), H07/H13.
 
+## Alcance de la fase de skills (2026-10-21)
+
+Las skills mejoran la pantalla existente sin añadir funcionalidad: siguen
+siendo cuatro KPIs y dos gráficos. Los seis componentes y el quinto KPI que
+añadió la primera versión de `formato-financiero` se retiraron en `a8959cd`
+tras la revisión del instructor. Ver [progress.md](progress.md), fase 6.
+
 ## Decisiones abiertas
 
 Confirmar moneda y precisión contable, tratamiento del margen sin ingresos

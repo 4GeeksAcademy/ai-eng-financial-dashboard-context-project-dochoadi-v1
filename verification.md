@@ -64,6 +64,34 @@ y Swagger. Corregidas las ambigüedades documentales de período/dataset,
 consumo de endpoints y ubicación de la variable de entorno; los defectos
 funcionales y las comprobaciones pendientes quedan explícitos, no resueltos.
 
+## Auditoría de accesibilidad y cambios acotados
+
+- Fecha: 2026-10-08. Rama: `feature/agent-skills`; baseline: `e11579a`.
+- Petición: documentar hallazgos y evidencias de accesibilidad, conservando
+  como pendientes los puntos que requieren inspección del DOM/tecnologías de
+  asistencia. Reglas aplicadas: estructura frontend, testing/verificación y
+  flujo Git; skill local de accesibilidad consultada.
+- Entregables: [hallazgos y pruebas](hallazgos.md) y
+  [auditoría inicial detallada](estadoinicial.md). Cambios de aplicación
+  incluidos en el mismo trabajo: semántica `h2` de `CardTitle`, estado de
+  carga `role="status"`, `lang="es"` en el error y reducción de animación.
+- Límites: hallazgo de alternativas a gráficos y anuncio de error siguen
+  pendientes; no se ejecutaron Lighthouse/axe, pruebas de teclado ni lector
+  de pantalla. No se declara conformidad WCAG.
+
+| Estado | Comprobación | Resultado |
+|---|---|---|
+| ✅ | Vitest en contenedor frontend | `docker exec ai-eng-financial-dashboard-context-project-dochoadi-v1-frontend-1 sh -lc 'npm test'`: 6 pruebas pasan, 2 archivos. |
+| ✅ | Build frontend en contenedor | `npm run build`: TypeScript/Vite completan; bundle 584.37 kB, aviso existente de chunk >500 kB. |
+| ✅ | Lint frontend en contenedor | `npm run lint`: completa sin errores. |
+| ✅ | Inspección de fuentes | `h2`, `role="status"`, `lang="es"` y `prefers-reduced-motion` presentes. |
+| ❓ | Navegador/tecnologías de asistencia | No ejecutados: gráficos, anuncio único de carga/error, teclado, lector de pantalla y preferencia de movimiento requieren prueba manual. |
+
+Los comandos se ejecutaron el 2026-10-08 sobre el contenedor ya activo; la
+instalación local no tenía dependencias. El build/lint/test no son una
+certificación de accesibilidad ni cambian el estado de proxy/navegador ya
+documentado en fases anteriores.
+
 ## Fase 2 - Hallazgos concretos y reglas propuestas
 
 - Fecha: 2026-10-04. Baseline: `ef53539`; 43 archivos versionados revisados.

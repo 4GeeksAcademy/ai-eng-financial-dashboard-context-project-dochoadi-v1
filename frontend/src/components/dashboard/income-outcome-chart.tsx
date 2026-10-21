@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { type MonthlyDataPoint } from '@/lib/financial-types'
-import { formatCurrency } from '@/lib/financial-utils'
+import { IncomeOutcomeTooltip } from '@/components/dashboard/chart-tooltip'
 import {
   LineChart,
   Line,
@@ -16,34 +16,6 @@ import {
 interface IncomeOutcomeChartProps {
   data: MonthlyDataPoint[]
   loading?: boolean
-}
-
-interface TooltipPayload {
-  name: string
-  value: number
-  color: string
-}
-
-interface CustomTooltipProps {
-  active?: boolean
-  payload?: TooltipPayload[]
-  label?: string
-}
-
-function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="rounded-lg border border-border bg-card px-4 py-3 shadow-lg text-sm">
-      <p className="font-semibold text-foreground mb-2">{label}</p>
-      {payload.map((entry) => (
-        <div key={entry.name} className="flex items-center gap-2 py-0.5">
-          <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
-          <span className="text-muted-foreground capitalize">{entry.name}:</span>
-          <span className="font-medium text-foreground ml-auto pl-4">{formatCurrency(entry.value)}</span>
-        </div>
-      ))}
-    </div>
-  )
 }
 
 export function IncomeOutcomeChart({ data, loading }: IncomeOutcomeChartProps) {
@@ -91,7 +63,7 @@ export function IncomeOutcomeChart({ data, loading }: IncomeOutcomeChartProps) {
                 tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
                 width={48}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<IncomeOutcomeTooltip />} />
               <Legend
                 formatter={(value) => (
                   <span className="text-xs text-muted-foreground capitalize">{value}</span>

@@ -115,6 +115,38 @@ invertido de fechas no se valida actualmente.
   cancelación ni retry. Error genérico descarta la causa; finalmente termina
   loading. No se usan mocks como recuperación.
 
+## Test E2E (Playwright)
+
+Desde la fase 5, existe una tercera capa de testing que complementa los tests
+unitarios de frontend (Vitest) y backend (pytest):
+
+- **Fichero**: `tests/e2e/test_dashboard.py` (217 líneas, sincrónico con
+  `sync_playwright`).
+- **Tests**: 4 escenarios independientes, cada uno con su propio ciclo de
+  vida de browser (`with sync_playwright() as p:`), sin estado compartido.
+- **Instrumentación**: Cada test captura screenshot en `/tmp/` para depuración
+  visual. 3 screenshots generados por ejecución completa.
+- **Cobertura**: Full flow (título, header, KPIs), charts (títulos, SVGs),
+  error state (backend caído, mensaje en español), y validación de signos
+  monetarios ($, %).
+- **Ejecución**: Desde raíz del proyecto con `python tests/e2e/test_dashboard.py`.
+  Requiere Chromium y dependencias del sistema instaladas
+  (`python -m playwright install-deps chromium`).
+
+Este patrón sigue la filosofía "reconnaissance-then-action" de la skill
+`webapp-testing`: primero observar/explorar la UI renderizada, luego hacer
+assertions sobre el contenido real del DOM.
+
+## Skill interna `formato-financiero`
+
+[.skills/formato-financiero/SKILL.md](../.skills/formato-financiero/SKILL.md)
+codifica el patrón de cifras de este repo: fórmulas solo en
+`lib/financial-utils.ts`; importes con `formatCurrency` y porcentajes con
+`formatPercent`; ejes compactos (`$Nk`, `N%`) como única excepción; ratios del
+backend (`increase_ratio`) distintos de porcentajes (`delta_pct`, puede ser
+`null`); `'—'` para valores no cargados; H06/H13 como riesgos conocidos.
+Alcance explícito: no añade KPIs, componentes ni secciones.
+
 ## Patrones para contribuir, no refactors ya aplicados
 
 Reutilizar helpers y primitives, preservar estilo local/contratos, verificar

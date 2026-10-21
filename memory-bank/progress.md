@@ -1,6 +1,7 @@
 # Progress
 
-Actualizado: 2026-10-04. Baseline de aplicación: `03a7a84`.
+Actualizado: 2026-10-21 (revisión del instructor, fase 6). Baseline de aplicación: `03a7a84`.
+Última skill aplicada: `formato-financiero` (interna) en `814c728`.
 Fase 4 es documental: no se repitió ejecución de aplicación ni se arregló
 deuda. ✅ confirmado con el alcance indicado; ❌ fallo/desajuste observado;
 ❓ pendiente de validar/decidir. Evidencia por fase en
@@ -111,3 +112,84 @@ Actualizar documento del área cuando cambien código/contratos, y progress
 con resultado, fecha y alcance. Conservar notas históricas en lugar de
 presentar evidencia pasada como ejecución nueva. Leer producto→tecnología→
 patrones→estado antes de cambios; revisar reglas y fuente real relevante.
+
+## Fase 5 — Skill Evaluation Pipeline: `webapp-testing`
+
+| Fase | Entrega | Commit / estado |
+|---|---|---|
+| 5 | [skilltesting.md](../skilltesting.md), [E2E tests](../tests/e2e/test_dashboard.py), [repo memory](../memories/repo/skill-testing-results.md) | `189af8d` (install) + `365ce79` (findings); completada. |
+
+### Resumen de resultados
+
+La skill `anthropics/skills@webapp-testing` fue evaluada siguiendo el pipeline
+de 8 pasos (leer SKILL.md → evaluar 4Q → instalar → medir baseline → auditar →
+supervisar → testear → reportar).
+
+**Evaluación**: 9/9 (coherente, no modifica fuentes, tests atómicos, segura).
+Seleccionada frente a `python/fastapi` (9/9) y `docker` (7/9) por impacto
+transversal (FE + BE + integración).
+
+**Tests E2E creados**: 4 tests en `tests/e2e/test_dashboard.py` (217 líneas):
+- `test_dashboard_full_flow` — título, header, KPIs, screenshot
+- `test_dashboard_charts_render` — chart titles ("Income vs. Outcome", "Profit Margin"), SVGs
+- `test_dashboard_error_state` — mensaje "No se pudo cargar" con lang="es"
+- `test_dashboard_kpi_values_are_positive` — signos $ y % visibles
+
+**Resultados**: 4/4 PASSED, 3 screenshots generados (93K, 89K, 112K).
+
+**Comparativa baseline**: 21 → 25 tests (+19%). Sin regresiones en frontend
+(6 tests ✅) ni backend (15 tests ✅). Nueva capa E2E sobre unitarias existentes.
+
+**Lección principal**: Chromium headless-shell requiere dependencias del sistema
+que se instalan con `python -m playwright install-deps chromium`.
+
+### Impacto en deuda técnica
+
+El pipeline no modificó código fuente ni corrigió los hallazgos H06-H31 de
+fase 2. Sin embargo, los tests E2E cubren la brecha de integración identificada
+(proxy timeout no diagnosticado, flujo end-to-end no verificado). El test
+`test_dashboard_error_state` valida que el mensaje de error en español se
+muestra cuando el backend no responde, cubriendo parcialmente H15/H16
+
+## Fase 6 — Agent skills tras revisión del instructor (2026-10-21)
+
+Feedback recibido: (1) la skill interna añadió seis componentes nuevos al
+dashboard y en este ejercicio solo se mejora lo existente, sin features;
+(2) la skill interna era un manual genérico de finanzas, no de este repo.
+
+### Skills aplicadas (estado final de `feature/agent-skills`)
+
+| Skill | Tipo | Commit | Cambio verificado |
+|---|---|---|---|
+| `accessibility` | Asignada (addyosmani/web-quality-skills) | `f9523dd` | `role="status"` sr-only en carga, `lang="es"` en el error, `CardTitle` pasa de div a `h2`, `prefers-reduced-motion` en skeleton. |
+| `vercel-react-best-practices` | Asignada (vercel-labs/agent-skills) | `43dfbea` | Tooltips extraídos a `chart-tooltip.tsx` (no componentes inline), formateador `Intl` cacheado y una sola pasada en `computeKPIs`. Frontend es Vite, no Next (`35f8553`, [verificacionvitenext.md](../verificacionvitenext.md)): reglas `next/image`, `next/font` y metadata por página no aplican. |
+| `webapp-testing` | Ecosistema (anthropics/skills) | `189af8d`, `365ce79` | 4 tests E2E Playwright. Elegida por impacto FE+BE+integración frente a python/fastapi y docker; justificación en [Skillelegida.md](../Skillelegida.md). |
+| `formato-financiero` | Interna, [.skills/formato-financiero/SKILL.md](../.skills/formato-financiero/SKILL.md) | `814c728` | Reglas F1-F9 del repo; validada en tarea real: `ProfitPercentTooltip` usaba `toFixed(1)%` inline → `formatPercent` (F2), mismo texto visible. |
+
+### Correcciones de la revisión
+
+- `a8959cd`: retirados `alerts-panel`, `category-breakdown`, `growth-comparison`,
+  `monthly-profit-chart`, `segment-comparison` y `trend-badge`, además del KPI
+  Cost-to-Income, badges de salud, volatilidad/concentración y marcadores de
+  margen. `frontend/src` vuelve al estado de `43dfbea` (a11y + React).
+- `814c728`: borrada la skill genérica `.agents/skills/formato-financiero`
+  (10 reglas de analista, scripts Python, benchmarks de industria). La nueva
+  vive en `.skills/` y cubre solo cálculo/formato de cifras de este código.
+- `d1fdadb`: merge de `main` (commits del 2026-10-14). Conflictos resueltos:
+  `financial-utils.ts` conserva formateador cacheado + funciones de `main`;
+  `vite.config.ts` toma `API_PROXY_TARGET` de `main` y elimina la IP fija
+  `172.18.0.1` que había introducido `189af8d`.
+
+### Verificación 2026-10-21 (Node 24.21.0, `npm ci`)
+
+- ✅ `npm run build`: OK; único aviso, bundle > 500 kB preexistente (H31).
+- ✅ `npm test`: 2 archivos, 16/16 tests (los 6 originales + 10 de `main`).
+- ✅ `npm run lint`: sin errores.
+- ✅ `npx skills find testing` y `npx skills find performance` ejecutados
+  (CLI `skills@1.7.4`); resultados reales en [Skillelegida.md](../Skillelegida.md)
+  sustituyen la exploración simulada anterior.
+- ❓ No ejecutados en esta sesión: pytest backend, E2E Playwright y revisión en
+  navegador. Resultados previos en las secciones anteriores son históricos.
+
+**Lección**: una skill interna debe acotar alcance ("no añade componentes")
+y citar archivos reales; una lista genérica de métricas invita a crear features.
