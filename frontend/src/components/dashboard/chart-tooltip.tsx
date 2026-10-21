@@ -1,4 +1,4 @@
-import { formatCurrency } from '@/lib/financial-utils'
+import { formatCurrency, formatPercent } from '@/lib/financial-utils'
 
 export interface TooltipPayload {
   name: string
@@ -40,7 +40,7 @@ export function ProfitPercentTooltip({ active, payload, label }: CustomTooltipPr
           style={{ backgroundColor: 'var(--chart-profit)' }}
         />
         <span className="text-muted-foreground">Profit margin:</span>
-        <span className="font-medium text-foreground ml-auto pl-4">{value.toFixed(1)}%</span>
+        <span className="font-medium text-foreground ml-auto pl-4">{formatPercent(value)}</span>
       </div>
     </div>
   )
