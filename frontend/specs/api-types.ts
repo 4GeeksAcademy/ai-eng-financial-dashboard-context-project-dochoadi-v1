@@ -45,8 +45,10 @@ export interface AlertEntry {
    */
   outcome_total: number
   /**
-   * Average of exactly the 3 preceding periods (target contract, decision D1 in
-   * verification.md). TODAY the API returns an expanding historical average instead.
+   * Average outcome of ALL preceding periods inside the filtered range (expanding
+   * historical average, as `detect_outcome_alerts` computes it today), rounded to
+   * 2 decimals. It is NOT a 3-period moving average, so the UI does not use this
+   * endpoint (D1); kept to document the API as it is.
    * @see GET /api/metrics/alerts
    */
   baseline_average: number
@@ -82,21 +84,6 @@ export interface CategoryEntry {
    * @see GET /api/metrics/categories/top
    */
   total_amount: number
-  /**
-   * TARGET CONTRACT (decision D2, not yet implemented/verified in the API; see
-   * verification.md ❌ row). Share of this category over the full group total, in
-   * percent, scale 0–100, rounded to 2 decimals. The group is
-   * (business_type, operation_type, date range), NOT limited by `limit`.
-   * @see GET /api/metrics/categories/top
-   */
-  percentage_of_group: number
-  /**
-   * TARGET CONTRACT (decision D2). Total of ALL movements of the group (all
-   * categories, ignoring `limit`), repeated in every entry. The response stays a
-   * plain array (backward compatible). An empty array means the group total is 0.
-   * @see GET /api/metrics/categories/top
-   */
-  group_total: number
 }
 
 export interface TopCategoriesResponse extends ReadonlyArray<CategoryEntry> {
@@ -106,6 +93,51 @@ export interface TopCategoriesResponse extends ReadonlyArray<CategoryEntry> {
    */
   readonly [index: number]: CategoryEntry
 }
+
+export interface SummaryEntry {
+  /**
+   * Aggregation period. With `group_by=month` it is `YYYY-MM`; months without
+   * movements are absent (not zero). Returned in ascending order.
+   * @see GET /api/metrics/summary
+   */
+  period: string
+  /**
+   * Total income of the period, rounded to 2 decimals.
+   * @see GET /api/metrics/summary
+   */
+  income: number
+  /**
+   * Total outcome of the period, rounded to 2 decimals. Input of the
+   * 3-period moving average computed in the frontend (D1).
+   * @see GET /api/metrics/summary
+   */
+  outcome: number
+  /**
+   * `income - outcome`, rounded to 2 decimals.
+   * @see GET /api/metrics/summary
+   */
+  net: number
+}
+
+export interface SummaryResponse extends ReadonlyArray<SummaryEntry> {
+  /**
+   * Summary entry at the given response-array index.
+   * @see GET /api/metrics/summary
+   */
+  readonly [index: number]: SummaryEntry
+}
+
+/**
+ * UI-only types (not API types), derived in the frontend from the responses
+ * above and implemented in `src/lib/financial-utils.ts`:
+ * - `IncomeBreakdown` / `CategoryShare`: `computeIncomeBreakdown`, D2.
+ * - `AnomalyAlert`: `computeAnomalyAlerts`, 3-period moving average, D1.
+ */
+export type {
+  AnomalyAlert,
+  CategoryShare,
+  IncomeBreakdown,
+} from '../src/lib/financial-types'
 
 /**
  * UI-only wrapper for one asynchronous request (not an API type). Lets a component

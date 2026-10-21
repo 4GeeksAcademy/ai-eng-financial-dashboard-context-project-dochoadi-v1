@@ -1,5 +1,7 @@
 # Fase 4 — Prueba en frío de las specs
 
+> **Corrección posterior (2026-10-14, revisión del manager):** los tipos no deben incluir datos que la API no devuelve ni depender de cambios de backend. `percentage_of_group` y `group_total` se retiraron de `CategoryEntry`; el total y el porcentaje se calculan en el frontend (D2) y `baseline_average` se usa tal como lo da la API hoy (D1). Lo que sigue sobre prerrequisitos de backend queda superado.
+
 Fecha: 2026-10-06. Alcance: `frontend/specs/` (brief, verification, tipos, `components.md`, README).
 
 ## Método

@@ -1,8 +1,14 @@
 import {
+  type AnomalyAlert,
   type FinancialMovement,
+  type IncomeBreakdown,
   type KPIMetrics,
+  type MetricsSummaryItem,
   type MonthlyDataPoint,
+  type TopCategoryItem,
 } from "./financial-types";
+
+const MOVING_AVERAGE_PERIODS = 3;
 
 function toYearMonthKey(value: Date): string {
   return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}`;
@@ -76,6 +82,65 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
 });
+
+function roundTo(value: number, decimals: number): number {
+  const factor = 10 ** decimals;
+  return Math.round(value * factor) / factor;
+}
+
+// The group total is the sum of ALL entries, so call categories/top with a
+// limit that covers every category (limit=20 > 5 categories).
+export function computeIncomeBreakdown(
+  entries: readonly TopCategoryItem[],
+  topCount = 5,
+): IncomeBreakdown {
+  const groupTotal = roundTo(
+    entries.reduce((sum, entry) => sum + entry.total_amount, 0),
+    2,
+  );
+
+  const topRows = entries.slice(0, topCount).map((entry) => ({
+    category: entry.category,
+    totalAmount: entry.total_amount,
+    percentageOfGroup:
+      groupTotal > 0 ? (entry.total_amount / groupTotal) * 100 : 0,
+  }));
+
+  return { groupTotal, topRows };
+}
+
+// Moving average of exactly the 3 previous periods present in the summary.
+// The first 3 periods are never evaluated; a zero baseline never alerts.
+export function computeAnomalyAlerts(
+  summary: readonly MetricsSummaryItem[],
+  threshold: number,
+): AnomalyAlert[] {
+  const ordered = [...summary].sort((a, b) => a.period.localeCompare(b.period));
+  const alerts: AnomalyAlert[] = [];
+
+  for (let index = MOVING_AVERAGE_PERIODS; index < ordered.length; index++) {
+    const previous = ordered.slice(index - MOVING_AVERAGE_PERIODS, index);
+    const baseline =
+      previous.reduce((sum, item) => sum + item.outcome, 0) /
+      MOVING_AVERAGE_PERIODS;
+    if (baseline <= 0) {
+      continue;
+    }
+
+    const current = ordered[index];
+    const increaseRatio = (current.outcome - baseline) / baseline;
+    if (increaseRatio > threshold) {
+      alerts.push({
+        period: current.period,
+        outcomeTotal: current.outcome,
+        baselineAverage: roundTo(baseline, 2),
+        increaseRatio: roundTo(increaseRatio, 4),
+      });
+    }
+  }
+
+  return alerts;
+}
 
 export function formatCurrency(value: number): string {
   return currencyFormatter.format(value);

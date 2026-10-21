@@ -84,6 +84,28 @@ Orden derivado de impacto reproducido en fases 1-2, no roadmap comercial:
 La fase 4 no implementa estas prioridades. Mantener alcance acordado y
 aplicar [reglas activas](../AGENTS.md).
 
+## Corrección de specs del frontend (2026-10-14)
+
+Revisión del manager: los tipos de [api-types.ts](../frontend/specs/api-types.ts)
+reflejan solo lo que la API devuelve hoy, sin pedir cambios de backend. El
+total del grupo y el porcentaje por categoría se calculan en el frontend (D2);
+`baseline_average` se usa tal cual (D1, ❓ PM). Commit `34d33bd`. Verificado el
+mismo día: build y 6 tests en verde, respuestas reales de `categories/top` y
+`alerts` coinciden con los tipos. Detalle y entorno en
+[verification.md de specs](../frontend/specs/verification.md).
+
+Segunda verificación (2026-10-14): D1 resuelto con media móvil de 3 en el
+frontend desde `/api/metrics/summary` (`computeAnomalyAlerts`) y D2 implementado
+(`computeIncomeBreakdown`), ambos con tests (16 en verde). `npm audit fix` dejó
+3 vulnerabilidades moderadas solo de vitest (❓). Con Docker Compose el proxy
+`/api` de Vite sigue sin alcanzar `backend:8000` (❌, H27 sin cambios): el
+dashboard no se validó en navegador.
+Después se hizo configurable el destino del proxy (`API_PROXY_TARGET` en
+`vite.config.ts`, por defecto `http://backend:8000`). En este Codespace, con
+`.env` local apuntando a la puerta de enlace Docker, `/api` responde 200 y el
+usuario confirmó el dashboard en el navegador. La causa de red de H27 sigue sin
+corregir.
+
 ## Mantenimiento del Memory Bank
 
 Actualizar documento del área cuando cambien código/contratos, y progress
