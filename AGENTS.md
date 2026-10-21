@@ -28,7 +28,9 @@ These rules govern new or modified work, not an automatic rewrite of the
 legacy application. Domain choices and infrastructure migrations still need
 an explicit scope. The [phase 2 draft](./memory-bank/archive/phase2-proposed-rules.md)
 is historical and must not override the active rules.
-Local skills are currently absent; do not invent or install them.
+Installed community skills live in `./.agents/skills` (see `skills-lock.json`);
+the internal project skill lives in [`./.skills/formato-financiero`](./.skills/formato-financiero/SKILL.md).
+Do not invent or install other skills without an explicit scope.
 
 For the scoped implementation exercise and its evidence, see
 [Phase 3 rule application](./memory-bank/phase3-rule-application.md).

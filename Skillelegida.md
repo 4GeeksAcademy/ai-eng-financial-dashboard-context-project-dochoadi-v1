@@ -91,93 +91,23 @@ tests/e2e/test_dashboard.py  # 217 líneas, 8105 bytes
 
 ---
 
-## 4. Skill personalizada: `formato-financiero`
+## 4. Skill interna: `formato-financiero`
 
-Además de las skills del ecosistema, se creó una **skill custom** que codifica
-10+ años de experiencia como analista financiero en un pipeline estructurado
-de revisión automática.
+**Versión actual (2026-10-21)**: [.skills/formato-financiero/SKILL.md](.skills/formato-financiero/SKILL.md).
 
-### Origen y motivación
+La primera versión (`00e9c37`) era un manual genérico de análisis financiero
+(10 reglas de analista, scripts Python, benchmarks de industria) y su
+aplicación añadió seis componentes nuevos. Tras la revisión del instructor se
+retiraron esos componentes (`a8959cd`) y la skill se reescribió (`814c728`)
+para cubrir un hueco propio de este repo que las skills de la comunidad no
+cubren: **cómo se calculan y formatean las cifras en este dashboard**.
 
-A diferencia de las skills instaladas vía `npx skills add` (webapp-testing,
-accessibility, vercel-react-best-practices), `formato-financiero` fue creada
-manualmente en `.agents/skills/formato-financiero/` para cubrir un dominio
-que ninguna skill del ecosistema aborda: el **análisis financiero cualitativo
-y cuantitativo** de dashboards de negocio.
-
-### Estructura de la skill
-
-```
-formato-financiero/
-├── SKILL.md                          # Definición principal (10 reglas R1–R10)
-├── README.md                         # Visión general e instrucciones de uso
-├── LICENSE.txt                       # Apache 2.0
-├── CONTRIBUTING.md                   # Guía para añadir reglas / ajustar umbrales
-├── scripts/
-│   ├── financial_review.py           # Motor completo de 10 reglas (540 líneas)
-│   └── quick_pulse.py                # Chequeo rápido de 5 métricas (71 líneas)
-├── examples/
-│   ├── financial_dashboard_analysis.py  # Ejemplo anotado con comentarios
-│   └── report-sample.md              # Salida real contra API en vivo
-└── references/
-    └── financial-standards.md        # Benchmarks de industria y umbrales
-```
-
-**Total**: 9 ficheros, 1.434 líneas.
-
-### Las 10 reglas (R1–R10)
-
-| Regla | Enfoque | Categoría |
-|-------|---------|-----------|
-| R1 | Rentabilidad y rendimiento neto | Salud central |
-| R2 | Salud de ingresos y crecimiento | Crecimiento |
-| R3 | Estructura de costes y eficiencia | Eficiencia |
-| R4 | Tendencia y trayectoria del margen | Estabilidad |
-| R5 | Flujo de caja y capital de trabajo | Liquidez |
-| R6 | Detección de anomalías y valores atípicos | Riesgo |
-| R7 | Rendimiento por segmento (B2B vs B2C) | Mezcla |
-| R8 | Concentración y dependencia por categoría | Concentración |
-| R9 | Compensación crecimiento vs rentabilidad | Estrategia |
-| R10 | Recomendaciones estratégicas prospectivas | Síntesis |
-
-### Verificación contra el dashboard real
-
-Los 3 scripts fueron ejecutados end-to-end contra la API del proyecto
-(`docker compose up -d`, puerto 8000, 360 movimientos mock):
-
-| Script | Resultado |
-|--------|-----------|
-| `quick_pulse.py` | ✅ All clear — 39.4% margin, healthy financial position |
-| `financial_review.py` | 4 ✅ positivos, 16 ⚠️ warnings, 8 ❌ críticos |
-| `financial_dashboard_analysis.py` | 10/10 reglas ejecutadas sin errores |
-
-### Hallazgos principales del análisis
-
-- **R2**: Ingresos declinando 3+ meses consecutivos — contracción en progreso
-- **R3**: Costes administrativos son 24.7% del outcome (>15% — overhead hinchado)
-- **R4**: 3 meses de margen negativo (Dic 2025, Mar 2026, Sep 2026)
-- **R5**: 3 meses de flujo de caja negativo
-- **R6**: Picos de gasto >50% intermensual en Dic 2025 (150%), Mar 2026 (254%),
-  Jun 2026 (96%)
-- **R7**: Margen B2B (23.8%) muy inferior a B2C (54.4%)
-- **R8**: Concentración del 90% de ingresos en categoría "sales"
-- **R9**: Compresión de margen (52.9% → -5.4%) al escalar ingresos — posibles
-  deseconomías de escala
-
-### Lecciones aprendidas
-
-1. **Firmas explícitas**: Las funciones de análisis deben diseñarse con
-   parámetros tipados (kpis, monthly, movements) para facilitar la importación
-   desde scripts externos.
-2. **Umbrales documentados**: Los thresholds (15% overhead, 50% MoM spike,
-   3-month revenue decline) deben estar tanto en SKILL.md como en el reference
-   sheet para permitir revisión sin tocar código.
-3. **Señales consistentes**: El uso de ✅/⚠️/❌/📊 en todos los outputs permite
-   al agente y al humano interpretar el reporte de un vistazo.
-4. **Formato Markdown estructurado**: El executive summary con tally de señales
-   y recomendaciones P0–P3 es directamente utilizable como reporte ejecutivo.
-
----
-
-*Skill creada y verificada el 2026-10-09. Commit `00e9c37` en rama
-`feature/agent-skills`.*
+- **Objetivo**: un único cálculo y un único formateador por cifra visible.
+- **Entradas**: diff/tarea + `financial-utils.ts`, `financial-types.ts`,
+  `routes.py` y hallazgos H06/H11/H13.
+- **Salida**: tabla `archivo:línea | regla | estado | acción` + diff mínimo
+  + resultado de build/test/lint.
+- **Criterios de aceptación**: sin formato inline salvo ejes, texto visible
+  idéntico, ningún componente nuevo, build/test/lint en verde.
+- **Prueba en tarea real**: la regla F2 detectó `value.toFixed(1)%` en
+  `ProfitPercentTooltip`; se sustituyó por `formatPercent(value)`.

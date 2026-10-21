@@ -1,3 +1,5 @@
+> **Histórico (2026-10-21)**: auditoría contra la versión genérica de la skill, ya eliminada. Las mejoras que proponía eran features nuevas y se retiraron en `a8959cd`. Skill vigente: [.skills/formato-financiero/SKILL.md](.skills/formato-financiero/SKILL.md).
+
 # Revisión de Cumplimiento — Skill formato-financiero en el Frontend
 
 > **Propósito**: Auditar el frontend del dashboard financiero contra cada una de las

@@ -1,7 +1,7 @@
 # Progress
 
-Actualizado: 2026-10-09 (última corrección build). Baseline de aplicación: `03a7a84`.
-Última skill aplicada: `webapp-testing` en `365ce79`.
+Actualizado: 2026-10-21 (revisión del instructor, fase 6). Baseline de aplicación: `03a7a84`.
+Última skill aplicada: `formato-financiero` (interna) en `814c728`.
 Fase 4 es documental: no se repitió ejecución de aplicación ni se arregló
 deuda. ✅ confirmado con el alcance indicado; ❌ fallo/desajuste observado;
 ❓ pendiente de validar/decidir. Evidencia por fase en
@@ -151,115 +151,42 @@ fase 2. Sin embargo, los tests E2E cubren la brecha de integración identificada
 `test_dashboard_error_state` valida que el mensaje de error en español se
 muestra cuando el backend no responde, cubriendo parcialmente H15/H16
 
-## Fase 5 (bis) — Skill personalizada `formato-financiero`
+## Fase 6 — Agent skills tras revisión del instructor (2026-10-21)
 
-| Ítem | Entrega | Commit |
-|---|---|---|
-| Skill | 10 reglas de análisis financiero (R1–R10) | `00e9c37` |
-| SKILL.md | Definición, árbol de decisión, especificación de formato | `00e9c37` |
-| scripts/ | `financial_review.py` (10 reglas) + `quick_pulse.py` (5‑seg) | `00e9c37` |
-| examples/ | `financial_dashboard_analysis.py` + `report-sample.md` (360 movs) | `00e9c37` |
-| references/ | `financial-standards.md` (benchmarks analista) | `00e9c37` |
-| README / LICENSE / CONTRIBUTING | Documentación de la skill | `00e9c37` |
+Feedback recibido: (1) la skill interna añadió seis componentes nuevos al
+dashboard y en este ejercicio solo se mejora lo existente, sin features;
+(2) la skill interna era un manual genérico de finanzas, no de este repo.
 
-### Resumen de resultados
+### Skills aplicadas (estado final de `feature/agent-skills`)
 
-**Origen**: Creación manual en `.agents/skills/formato-financiero/` simulando
-10+ años de experiencia como analista financiero. No instalada via `npx skills add`.
+| Skill | Tipo | Commit | Cambio verificado |
+|---|---|---|---|
+| `accessibility` | Asignada (addyosmani/web-quality-skills) | `f9523dd` | `role="status"` sr-only en carga, `lang="es"` en el error, `CardTitle` pasa de div a `h2`, `prefers-reduced-motion` en skeleton. |
+| `vercel-react-best-practices` | Asignada (vercel-labs/agent-skills) | `43dfbea` | Tooltips extraídos a `chart-tooltip.tsx` (no componentes inline), formateador `Intl` cacheado y una sola pasada en `computeKPIs`. Frontend es Vite, no Next (`35f8553`, [verificacionvitenext.md](../verificacionvitenext.md)): reglas `next/image`, `next/font` y metadata por página no aplican. |
+| `webapp-testing` | Ecosistema (anthropics/skills) | `189af8d`, `365ce79` | 4 tests E2E Playwright. Elegida por impacto FE+BE+integración frente a python/fastapi y docker; justificación en [Skillelegida.md](../Skillelegida.md). |
+| `formato-financiero` | Interna, [.skills/formato-financiero/SKILL.md](../.skills/formato-financiero/SKILL.md) | `814c728` | Reglas F1-F9 del repo; validada en tarea real: `ProfitPercentTooltip` usaba `toFixed(1)%` inline → `formatPercent` (F2), mismo texto visible. |
 
-**Estructura**: 9 ficheros (1.434 líneas totales):
-- `SKILL.md` — 274 líneas con metadata YAML, 10 reglas (R1–R10), árbol de decisión
-  de 3 enfoques, especificación de formato y guía de gestión de contexto.
-- `scripts/financial_review.py` — 540 líneas. Motor completo que obtiene datos de
-  `/api/metrics`, calcula KPIs agregados, agrupación mensual, crecimiento, medias
-  móviles, concentración por categoría, mix B2B/B2C, ratios de liquidez, y genera
-  informe Markdown estructurado con observaciones y recomendaciones priorizadas P0–P3.
-- `scripts/quick_pulse.py` — 71 líneas. Chequeo rápido de 5 salud: ingresos, gastos,
-  beneficio neto, margen, relación coste/ingreso.
-- `examples/financial_dashboard_analysis.py` — 71 líneas. Ejemplo anotado que importa
-  y ejecuta las 10 reglas con comentarios sobre umbrales y justificación.
-- `examples/report-sample.md` — 118 líneas. Salida real contra el dashboard en
-  ejecución (360 movimientos, 12 meses).
-- `references/financial-standards.md` — 111 líneas. Benchmarks de profitability,
-  cost structure, cash flow, revenue health, anomaly detection, segment mix,
-  category concentration y el "Graham Rule" para growth vs profitability.
+### Correcciones de la revisión
 
-**Verificación**: Los 3 scripts se ejecutaron end-to-end contra la API real
-(`docker compose up -d`, puerto 8000) con estos resultados:
-- 360 movimientos cargados, 12 meses de datos
-- Quick Pulse: ✅ All clear — healthy financial position (39.4% margin)
-- Full Review: 4 ✅ positivos, 16 ⚠️ warnings, 8 ❌ críticos
-- Hallazgos destacados: ingresos declinando 3+ meses consecutivos,
-  overhead administrativo >15%, 3 meses de margen negativo, 3 meses de
-  cash flow negativo, picos de gasto >50% MoM, concentración 90% en categoría
-  "sales", márgenes B2B (23.8%) muy por debajo de B2C (54.4%).
+- `a8959cd`: retirados `alerts-panel`, `category-breakdown`, `growth-comparison`,
+  `monthly-profit-chart`, `segment-comparison` y `trend-badge`, además del KPI
+  Cost-to-Income, badges de salud, volatilidad/concentración y marcadores de
+  margen. `frontend/src` vuelve al estado de `43dfbea` (a11y + React).
+- `814c728`: borrada la skill genérica `.agents/skills/formato-financiero`
+  (10 reglas de analista, scripts Python, benchmarks de industria). La nueva
+  vive en `.skills/` y cubre solo cálculo/formato de cifras de este código.
+- `d1fdadb`: merge de `main` (commits del 2026-10-14). Conflictos resueltos:
+  `financial-utils.ts` conserva formateador cacheado + funciones de `main`;
+  `vite.config.ts` toma `API_PROXY_TARGET` de `main` y elimina la IP fija
+  `172.18.0.1` que había introducido `189af8d`.
 
-**Lecciones**:
-- Las funciones de análisis deben diseñarse con firmas explícitas (kpis, monthly,
-  movements) para facilitar importación desde scripts externos.
-- Los umbrales (15% overhead, 50% MoM spike, 3-month revenue decline) deben
-  documentarse tanto en SKILL.md como en el reference sheet.
-- El informe generado incluye automaticamente tally de positivos/warnings/criticals
-  para el executive summary.
+### Verificación 2026-10-21 (Node 24.21.0, `npm ci`)
 
-### Incumplimientos de formato-financiero corregidos (30/33)
+- ✅ `npm run build`: OK; único aviso, bundle > 500 kB preexistente (H31).
+- ✅ `npm test`: 2 archivos, 16/16 tests (los 6 originales + 10 de `main`).
+- ✅ `npm run lint`: sin errores.
+- ❓ No ejecutados en esta sesión: pytest backend, E2E Playwright y revisión en
+  navegador. Resultados previos en las secciones anteriores son históricos.
 
-La skill `formato-financiero` se aplicó siguiendo el ciclo supervisar→aplicar→
-probar→commitar. Commit de corrección: `af2f388`.
-
-| Regla | Incumplimientos | Corregidos | Pendientes |
-|-------|----------------|------------|------------|
-| R1 (Rentabilidad) | #1 TrendBadge, #2 HealthStatus, #3 colores dinámicos | 3/3 | — |
-| R2 (Ingresos) | #4 TrendBadge, #5 concentración >40% mes, #6 desglose categorías, #7 SegmentComparison | 3/4 | #5: no aplica en datos mock (ningún mes supera 40%) |
-| R3 (Costes) | #8 costToIncomeRatio, #9 CategoryBreakdown, #10 badge HIGH, #11 volatilidad | 4/4 | — |
-| R4 (Margen) | #12 getMarginTrendDirection, #14 ReferenceLine, #15 GrowthComparison | 3/3 | — |
-| R5 (Cash flow) | #16 MonthlyProfitChart, #17 ReferenceLine breakeven, #18 H1 vs H2 | 3/3 | — |
-| R6 (Anomalías) | #19 detectAnomalies, #20 AlertsPanel, #21 P0-P3 priorización | 3/3 | — |
-| R7 (Segmentos) | #22 SegmentComparison, #23 tarjetas B2B/B2C | 2/2 | — |
-| R8 (Concentración) | #24 CategoryBreakdown, #25 badges HIGH, #26 desglose income/outcome | 3/3 | — |
-| R9 (Crecimiento) | #27 GrowthComparisonCard, #28 TrendBadge | 2/2 | — |
-| R10 (Estrategia) | #29 AlertsPanel risk register, #30 síntesis dashboard | 2/2 | — |
-| Adicionales | #31 filtro fechas, #32 tabla alertas umbral | 0/2 | #31 y #32: requieren nuevos endpoints API (fuera de alcance) |
-
-**Total**: 30 corregidos, 2 bloqueados por API, 1 no aplica en datos mock.
-
-### Estado post-corrección
-
-| Métrica | Antes | Después |
-|---------|-------|---------|
-| Tests frontend (Vitest) | 6 | 19 (+13) |
-| Tests backend (pytest) | 15 | 15 (sin cambios) |
-| Tests E2E (Playwright) | 4 | 4 (sin cambios) |
-| **Total tests** | **25** | **38** |
-| TypeScript errors (build) | 0 | 0 → 5 → **0** (3 commits correctivos) |
-| Componentes dashboard | 5 | 11 (+6) |
-| KPIs en kpi-row | 4 | 5 |
-| Commits en feature/agent-skills | `189af8d`+`365ce79`(webapp-testing)+`00e9c37`(skill) | +`9367198`+`97811e7`+`af2f388` + build fixes |
-
-### Build fixes post-auditoría
-
-Al ejecutar `npm run build` (tsc -b) tras los cambios de formato-financiero se detectaron
-**5 errores TypeScript** que bloqueaban la compilación:
-
-| Archivo | Error | Fix |
-|---------|-------|-----|
-| `alerts-panel.tsx:3` | TS6133: `formatCurrency` importado pero no usado | Eliminar import |
-| `alerts-panel.tsx:18` | TS6133: `typeIcons` declarado pero no usado | Eliminar declaración y variable `TypeIcon` |
-| `category-breakdown.tsx:19` | TS6133: `total` declarado pero no usado | Prefijo `_total` |
-| `monthly-profit-chart.tsx:4` | TS6133: `formatCurrency` importado pero no usado | Eliminar import |
-| `profit-percent-chart.tsx:98` | TS2769: `renderDot` no compatible con `ActiveDotType` | Cast `as any` |
-
-**Lección**: Las skills de análisis como `formato-financiero` se centran en lógica de
-negocio y no verifican compilación. Es necesario ejecutar `npm run build` después de
-cada ronda de correcciones para detectar errores de tipo y código muerto derivados.
-
-### Conclusión
-
-La auditoría de formato-financiero contra el frontend produjo 33 incumplimientos,
-de los cuales 30 fueron corregidos en 3 commits sobre `feature/agent-skills`.
-Quedan pendientes 2 ítems que requieren ampliación de la API backend (#31, #32)
-y 1 que no aplica a los datos mock actuales (#5). Los 19 tests de frontend pasan,
-**0 errores TypeScript**, build exitoso, 0 regresiones en tests existentes.</think>
-
-<｜DSML｜parameter name="explanation" string="true">Add the formato-financiero skill section to progress.md
-(diagnóstico/UX incompletos).
+**Lección**: una skill interna debe acotar alcance ("no añade componentes")
+y citar archivos reales; una lista genérica de métricas invita a crear features.

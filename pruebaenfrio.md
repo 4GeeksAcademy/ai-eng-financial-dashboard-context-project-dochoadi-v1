@@ -1,3 +1,5 @@
+> **Histórico (2026-10-21)**: las referencias a componentes post-auditoría de formato-financiero quedaron obsoletas al retirarlos en `a8959cd`. Ver [progress.md](memory-bank/progress.md), fase 6.
+
 # Prueba en Frío — Auditoría de documentación
 
 > **Fecha**: 2026-10-09

@@ -106,21 +106,10 @@ VITE_* expuestas al frontend. Conexión detallada en
   python -m playwright install-deps chromium
   ```
   4 tests, 3 screenshots automáticos. Ver [`skilltesting.md`](../skilltesting.md).
-- **formato-financiero** (skill personalizada): Análisis financiero con 10
-  reglas (R1–R10). Los scripts usan `urllib` para consumir la API en
-  `http://localhost:8000/api/metrics`. Ejecutar desde raíz:
-  ```bash
-  # Quick pulse (5 segundos)
-  python .agents/skills/formato-financiero/scripts/quick_pulse.py
-
-  # Revisión completa (10 reglas)
-  python .agents/skills/formato-financiero/scripts/financial_review.py
-
-  # Ejemplo anotado
-  python .agents/skills/formato-financiero/examples/financial_dashboard_analysis.py
-  ```
-  Requiere Python 3.10+ y el backend en ejecución. Umbrales documentados en
-  `references/financial-standards.md`.
+- **formato-financiero** (skill interna, sin scripts): se carga leyendo
+  [.skills/formato-financiero/SKILL.md](../.skills/formato-financiero/SKILL.md)
+  y se verifica con `grep -rn "toFixed\|Intl\.\|toLocale" frontend/src --include=*.tsx`
+  más `npm run build && npm test && npm run lint` en `frontend/`.
 - [tsconfig app](../frontend/tsconfig.app.json) y
   [node](../frontend/tsconfig.node.json) no habilitan strict; sí noUnused,
   modo bundler y noEmit. Alias @ está coordinado en TS/Vite/components.
@@ -133,17 +122,17 @@ VITE_* expuestas al frontend. Conexión detallada en
 
 El proyecto tiene 4 skills instaladas/disponibles. Las primeras tres se instalaron
 vía `npx skills add` y están registradas en [`skills-lock.json`](../skills-lock.json);
-la cuarta se creó manualmente.
+la cuarta es interna del repo y vive en `.skills/`.
 
 | Skill | Origen | Ruta local | Propósito | ¿Cuándo usarla? |
 |-------|--------|------------|-----------|-----------------|
 | **accessibility** | `addyosmani/web-quality-skills` → `skills/accessibility/SKILL.md` | `.agents/skills/accessibility/` (SKILL.md + 2 referencias) | Auditar accesibilidad web WCAG 2.2 (POUR): alt text, contraste, teclado, roles ARIA, focus. Workflow: Lighthouse audit → accessibility-tree snapshot → keyboard testing. | Al crear/modificar componentes UI, al auditar accesibilidad, al verificar cumplimiento AA/AAA. Skill documental + patrones de código. |
 | **vercel-react-best-practices** | `vercel-labs/agent-skills` → `skills/react-best-practices/SKILL.md` | `.agents/skills/vercel-react-best-practices/` (SKILL.md + 70 rules/ + AGENTS.md) | 70 reglas de rendimiento React/Next.js de Vercel Engineering. 8 categorías priorizadas: waterfalls, bundle, server, cliente, re-renders, rendering, JS, avanzados. | Al escribir nuevos componentes React, al refactorizar por rendimiento, al optimizar bundle. No aplica a backend ni testing. |
 | **webapp-testing** | `anthropics/skills` → `skills/webapp-testing/SKILL.md` | `.agents/skills/webapp-testing/` (SKILL.md + examples/ + scripts/) | Toolkit E2E con Playwright. Patrón "reconnaissance-then-action": inspeccionar DOM → identificar selectores → assertions. Helper `scripts/with_server.py` para ciclo de vida de servidores. | Al crear tests E2E, al verificar integración FE/BE real, al depurar UI desde el navegador. No para tests unitarios. |
-| **formato-financiero** | Creación manual (no `npx skills add`) | `.agents/skills/formato-financiero/` (SKILL.md + scripts/ + examples/ + references/) | 10 reglas de análisis financiero (R1–R10): rentabilidad, ingresos, costes, margen, cash flow, anomalías, segmentos, concentración, crecimiento vs rentabilidad, estrategia. Scripts: `financial_review.py`, `quick_pulse.py`. | Al auditar un dashboard financiero, al detectar anomalías/riesgos, al evaluar salud financiera, al generar informes ejecutivos. |
+| **formato-financiero** | Interna del repo (no `npx skills add`) | `.skills/formato-financiero/SKILL.md` | Reglas F1-F9 de cálculo y formato de cifras de este dashboard (formatCurrency/formatPercent, ejes, ratios backend, H06/H13). | Al tocar KPIs, gráficos, tooltips o `financial-utils.ts`. No añade features. |
 
-Todas las skills son de solo lectura: analizan la aplicación pero no modifican
-su código fuente. Más detalles en [`Skillelegida.md`](../Skillelegida.md) y
+Las skills guían al agente; los cambios se aplican en commits trazables a cada
+skill (ver [progress.md](progress.md), fase 6). Más detalles en [`Skillelegida.md`](../Skillelegida.md) y
 [`skilltesting.md`](../skilltesting.md).
 
 Resultados y advertencias fechados, no una ejecución nueva de fase 4:

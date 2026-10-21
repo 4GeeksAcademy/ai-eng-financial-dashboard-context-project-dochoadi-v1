@@ -137,34 +137,15 @@ Este patrón sigue la filosofía "reconnaissance-then-action" de la skill
 `webapp-testing`: primero observar/explorar la UI renderizada, luego hacer
 assertions sobre el contenido real del DOM.
 
-## Skill personalizada `formato-financiero`
+## Skill interna `formato-financiero`
 
-La skill `formato-financiero` introduce un patrón de **análisis financiero
-estructurado** que se apoya en los datos expuestos por la API del dashboard:
-
-- **Capa de datos**: La skill consume el endpoint `/api/metrics` que devuelve
-  ~360 movimientos con esquema `{create_date, amount, operation_type, category,
-  business_type, ...}`. No modifica ni extiende la API.
-- **Motor de reglas**: `scripts/financial_review.py` implementa 10 funciones
-  independientes (R1–R10), cada una con firma explícita que recibe KPIs
-  precomputados, agregaciones mensuales, y/o los movimientos brutos. Esto
-  permite importar reglas individuales desde scripts externos.
-- **Pipeline de análisis**: `movements → compute_kpis() + monthly_data() →
-  [R1..R10] → R10_strategic_recommendations()`. Las reglas son independientes
-  pero R10 sintetiza los hallazgos de todas.
-- **Marcadores de señal**: Consistente uso de ✅ (positivo), ⚠️ (warning),
-  ❌ (crítico), 📊 (informativo) en todos los outputs.
-- **Formato de salida**: Informe Markdown estructurado con secciones por regla,
-  executive summary con tally de señales, y recomendaciones priorizadas P0–P3.
-- **Quick pulse**: `scripts/quick_pulse.py` ofrece un subconjunto de 5 métricas
-  para diagnósticos rápidos sin ejecutar las 10 reglas completas.
-- **Referencia externa**: `references/financial-standards.md` documenta los
-  umbrales y benchmarks de la industria que justifican cada regla, permitiendo
-  revisión y ajuste sin modificar código.
-
-Este patrón es exportable: cualquier dashboard que exponga un array JSON de
-movimientos financieros puede ser analizado por las mismas 10 reglas con
-cambios mínimos en la URL de la API.
+[.skills/formato-financiero/SKILL.md](../.skills/formato-financiero/SKILL.md)
+codifica el patrón de cifras de este repo: fórmulas solo en
+`lib/financial-utils.ts`; importes con `formatCurrency` y porcentajes con
+`formatPercent`; ejes compactos (`$Nk`, `N%`) como única excepción; ratios del
+backend (`increase_ratio`) distintos de porcentajes (`delta_pct`, puede ser
+`null`); `'—'` para valores no cargados; H06/H13 como riesgos conocidos.
+Alcance explícito: no añade KPIs, componentes ni secciones.
 
 ## Patrones para contribuir, no refactors ya aplicados
 
