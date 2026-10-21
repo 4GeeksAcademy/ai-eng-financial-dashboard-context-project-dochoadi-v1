@@ -3,15 +3,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { type LucideIcon } from 'lucide-react'
 
-type HealthStatus = 'healthy' | 'warning' | 'critical'
-
 interface KPICardProps {
   label: string
   value: string
   helperText: string
   icon: LucideIcon
-  variant: 'income' | 'outcome' | 'profit' | 'profitPercent' | 'costRatio'
-  health?: HealthStatus
+  variant: 'income' | 'outcome' | 'profit' | 'profitPercent'
   loading?: boolean
 }
 
@@ -32,29 +29,10 @@ const variantStyles: Record<KPICardProps['variant'], { badge: string; icon: stri
     badge: 'bg-[var(--profit-badge)] text-[var(--profit-badge-fg)]',
     icon: 'text-[var(--profit-badge-fg)]',
   },
-  costRatio: {
-    badge: 'bg-[var(--outcome-badge)] text-[var(--outcome-badge-fg)]',
-    icon: 'text-[var(--outcome-badge-fg)]',
-  },
 }
 
-const healthStyles: Record<HealthStatus, { badge: string; icon: string }> = {
-  healthy: {
-    badge: 'bg-emerald-500/15 text-emerald-500',
-    icon: 'text-emerald-500',
-  },
-  warning: {
-    badge: 'bg-amber-500/15 text-amber-500',
-    icon: 'text-amber-500',
-  },
-  critical: {
-    badge: 'bg-red-500/15 text-red-500',
-    icon: 'text-red-500',
-  },
-}
-
-export function KPICard({ label, value, helperText, icon: Icon, variant, health, loading }: KPICardProps) {
-  const styles = health && healthStyles[health] ? healthStyles[health] : variantStyles[variant]
+export function KPICard({ label, value, helperText, icon: Icon, variant, loading }: KPICardProps) {
+  const styles = variantStyles[variant]
 
   if (loading) {
     return (
