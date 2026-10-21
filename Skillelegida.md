@@ -2,20 +2,32 @@
 
 ## 1. Exploración
 
-Búsquedas simuladas con `npx skills find <palabra>` sobre los repositorios
-registrados en `skills-lock.json` (`addyosmani/web-quality-skills` y
-`vercel-labs/agent-skills`) y el ecosistema general de agent skills:
+Búsquedas reales ejecutadas el 2026-10-21 con `npx skills find <topic>`
+(CLI `skills@1.7.4`). Se muestran los resultados relevantes para este stack
+(React 19 + Vite, FastAPI, Vitest/pytest); el resto (Go, Flutter, Expo,
+Swift, marketing, GSAP, Supabase/Convex) no aplica.
 
-| Búsqueda | Resultados esperados | Aplica al proyecto |
+### `npx skills find testing`
+
+| Resultado | Installs | ¿Aplica al proyecto? |
 |---|---|---|
-| `performance` | `vercel-react-best-practices` (ya instalado). Otras fuentes: perf.planet, web-dev-speed-kit. | ✅ Ya lo tenemos. Cubre waterfalls, bundle, server, cliente, re-render. |
-| `forms` | Skills de validación, envío, UX de formularios. | ❌ El dashboard es 100% readonly — ni un solo `<form>`, input o botón de envío. Skill irrelevante. |
-| `testing` / `test` | Skills de Vitest, pytest, TDD, cobertura. | ✅ Frontend usa Vitest, backend usa pytest. Hay deuda de tests (H21/H22). **Cubre necesidad real.** |
-| `python` / `fastapi` | Skills de Python, FastAPI, Pydantic, async. | ✅ Backend 100% Python/FastAPI. Sin DB pero con 9 rutas, filtros, generación. |
-| `docker` | Skills de Dockerfile, Compose, multi-stage, healthcheck. | ✅ Proyecto entero se ejecuta con Docker. Faltan .dockerignore, healthcheck, readiness. |
-| `charts` / `gráficos` | Skills de Recharts, Chart.js, visualización de datos. | ❌ Usamos Recharts pero los wrappers son finos (cantidad de reglas baja frente al esfuerzo). |
-| `accessibility` | Skill `accessibility` (addyosmani) — ya instalado. | ✅ Ya lo tenemos. Cubre WCAG 2.2, POUR, alt text, teclado. |
-| `seo` | Skill de SEO (addyosmani). | ❌ Dashboard demo sin SEO ni motor de búsqueda. |
+| `anthropics/skills@webapp-testing` | 183.8K | ✅ **Elegida.** Playwright E2E sobre la app real: cubre el flujo FE+BE+proxy no verificado. |
+| `wshobson/agents@e2e-testing-patterns` | 24.2K | ⚠️ Patrones E2E genéricos; sin scripts para levantar servidores como `webapp-testing`. |
+| `wshobson/agents@python-testing-patterns` | 36.6K | ⚠️ Solo backend pytest (ya 97% cobertura de líneas). |
+| `mattpocock/skills@tdd` | 1.1M | ⚠️ Metodología, no aborda la deuda concreta H21/H22. |
+| `vercel-labs/agent-browser@agent-browser` | 1.1M | ❌ Automatización de navegador genérica, no testing del repo. |
+| `golang-testing`, `flutter-*`, `limrun-*`, `clerk-testing` | — | ❌ Otro stack. |
+
+### `npx skills find performance`
+
+| Resultado | Installs | ¿Aplica al proyecto? |
+|---|---|---|
+| `vercel-labs/agent-skills@vercel-react-best-practices` | 823.6K | ✅ Ya aplicada (skill asignada). |
+| `addyosmani/web-quality-skills@performance` | 40.5K | ⚠️ Útil para el aviso de bundle >500 kB (H31), pero exige medir antes de optimizar. |
+| `cloudflare/skills@web-perf` | 105.8K | ⚠️ Orientada a despliegue en Cloudflare; no hay entorno de producción. |
+| `currents-dev/...@playwright-best-practices` | 96.9K | ⚠️ Complemento de `webapp-testing`, no necesario para 4 tests. |
+| `vercel-labs/agent-skills@vercel-optimize` | 105.6K | ❌ Específica de despliegues Vercel/Next; frontend es Vite. |
+| `supabase-*`, `convex-*`, `golang-*`, `gsap-*`, `write-swift` | — | ❌ Otro stack. |
 
 ## 2. Tres candidatas — criterios de selección
 

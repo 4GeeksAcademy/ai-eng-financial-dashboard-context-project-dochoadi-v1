@@ -185,6 +185,9 @@ dashboard y en este ejercicio solo se mejora lo existente, sin features;
 - ✅ `npm run build`: OK; único aviso, bundle > 500 kB preexistente (H31).
 - ✅ `npm test`: 2 archivos, 16/16 tests (los 6 originales + 10 de `main`).
 - ✅ `npm run lint`: sin errores.
+- ✅ `npx skills find testing` y `npx skills find performance` ejecutados
+  (CLI `skills@1.7.4`); resultados reales en [Skillelegida.md](../Skillelegida.md)
+  sustituyen la exploración simulada anterior.
 - ❓ No ejecutados en esta sesión: pytest backend, E2E Playwright y revisión en
   navegador. Resultados previos en las secciones anteriores son históricos.
 
